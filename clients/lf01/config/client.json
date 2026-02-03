@@ -19,9 +19,18 @@
   },
   "businessHours": {
     "start": 8,
-    "end": 17,
-    "days": [1, 2, 3, 4, 5],
-    "timezone": "America/New_York"
+    "end": 22,
+    "days": [0, 1, 2, 3, 4, 5, 6],
+    "timezone": "America/New_York",
+    "schedule": {
+      "1": { "start": 8, "end": 22 },
+      "2": { "start": 8, "end": 22 },
+      "3": { "start": 8, "end": 22 },
+      "4": { "start": 8, "end": 22 },
+      "5": { "start": 8, "end": 22 },
+      "6": { "start": 8, "end": 20 },
+      "0": { "start": 8, "end": 20 }
+    }
   },
   "services": [
     "LeafFilter gutter protection (gutter guard) system installation",

@@ -382,7 +382,13 @@ async function generateIntradayReport() {
             const callTime = toZonedTime(new Date(c.createdAt), TIME_ZONE);
             const hour = callTime.getHours();
             const day = callTime.getDay();
-            return hour < businessHours.start || hour >= businessHours.end || !businessHours.days.includes(day);
+            const schedule = businessHours.schedule || {};
+            const daySchedule = schedule[String(day)] || schedule[day];
+            if (daySchedule && typeof daySchedule.start === 'number' && typeof daySchedule.end === 'number') {
+                return hour < daySchedule.start || hour >= daySchedule.end;
+            }
+            if (businessHours.days && !businessHours.days.includes(day)) return true;
+            return hour < businessHours.start || hour >= businessHours.end;
         }).length;
 
         // Transfer reasons (routed only)
