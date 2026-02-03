@@ -110,6 +110,130 @@ function extractEmail(call) {
     return email;
 }
 
+const TRANSFER_TOOL_NAMES = new Set(['intent_transfer', 'transfer_intent', 'transferCall']);
+
+function getCallDuration(call) {
+    let duration = call.duration || 0;
+    if (!duration && call.startedAt && call.endedAt) {
+        const start = new Date(call.startedAt);
+        const end = new Date(call.endedAt);
+        duration = (end - start) / 1000; // Convert ms to seconds
+    }
+    return duration;
+}
+
+function getTransferIntent(call) {
+    if (Array.isArray(call.toolCalls)) {
+        const tool = call.toolCalls.find(t => TRANSFER_TOOL_NAMES.has(t.function?.name));
+        if (tool?.function?.arguments) {
+            try {
+                const args = JSON.parse(tool.function.arguments);
+                return args.destination || args.intent || args.department || args.queue || null;
+            } catch (e) {}
+        }
+    }
+
+    if (Array.isArray(call.messages)) {
+        for (const msg of call.messages) {
+            if (!msg.toolCalls) continue;
+            const tool = msg.toolCalls.find(t => TRANSFER_TOOL_NAMES.has(t.function?.name));
+            if (tool?.function?.arguments) {
+                try {
+                    const args = JSON.parse(tool.function.arguments);
+                    return args.destination || args.intent || args.department || args.queue || null;
+                } catch (e) {}
+            }
+        }
+    }
+
+    return null;
+}
+
+function percentile(values, pct) {
+    if (!values.length) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const rank = Math.ceil((pct / 100) * sorted.length) - 1;
+    return sorted[Math.max(0, Math.min(rank, sorted.length - 1))];
+}
+
+function computeDurationStats(values) {
+    if (!values.length) {
+        return { avg: 0, median: 0, p90: 0 };
+    }
+    const avg = Math.round(values.reduce((sum, v) => sum + v, 0) / values.length);
+    const median = percentile(values, 50);
+    const p90 = percentile(values, 90);
+    return { avg, median, p90 };
+}
+
+function computeDurationBuckets(values) {
+    const buckets = {
+        '0-15s': 0,
+        '15-30s': 0,
+        '30-60s': 0,
+        '60-120s': 0,
+        '120s+': 0
+    };
+
+    for (const v of values) {
+        if (v < 15) buckets['0-15s'] += 1;
+        else if (v < 30) buckets['15-30s'] += 1;
+        else if (v < 60) buckets['30-60s'] += 1;
+        else if (v < 120) buckets['60-120s'] += 1;
+        else buckets['120s+'] += 1;
+    }
+
+    return buckets;
+}
+
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+function hasCustomerSpeech(call) {
+    if (Array.isArray(call.messages)) {
+        return call.messages.some(msg =>
+            msg.role === 'user' &&
+            typeof msg.message === 'string' &&
+            msg.message.trim().match(/\w+/)
+        );
+    }
+    return false;
+}
+
+function isSpamLikelyShortNoSpeech(call, durationSeconds) {
+    return durationSeconds > 0 && durationSeconds <= 10 && !hasCustomerSpeech(call);
+}
+
+function cleanSummaryText(summary) {
+    if (!summary) return 'No summary';
+    let cleaned = summary.replace(/\s+/g, ' ').trim();
+    // Strip all known verbose prefixes (including markdown bold variants)
+    cleaned = cleaned.replace(/^\*{0,2}here'?s a summary[^:]*:\*{0,2}\s*/i, '');
+    cleaned = cleaned.replace(/^\*{0,2}summary of (?:the )?interaction:?\*{0,2}\s*/i, '');
+    cleaned = cleaned.replace(/^\*{0,2}summary:?\*{0,2}\s*/i, '');
+    // Remove leading ** if leftover
+    cleaned = cleaned.replace(/^\*{1,2}\s*/, '');
+    if (cleaned.length <= 100) return cleaned || 'No summary';
+    // Truncate at word boundary + ellipsis
+    const truncated = cleaned.slice(0, 100).replace(/\s+\S*$/, '');
+    return (truncated || cleaned.slice(0, 100)) + '...';
+}
+
+function categoryEmoji(category) {
+    switch ((category || '').toLowerCase()) {
+        case 'booking-completed': return '✓ booked';
+        case 'booking-transferred': return '→ book-xfer';
+        case 'booking-abandoned': return '⚠ book-abandoned';
+        case 'transferred': return '→ transfer';
+        case 'spam': return '✗ spam';
+        case 'hangup': return '↩ hangup';
+        default: return category || 'unknown';
+    }
+}
+
 async function generateIntradayReport() {
     try {
         // 1. Get target date (from --date parameter or default to today)
@@ -190,13 +314,14 @@ async function generateIntradayReport() {
                 }
             }
 
-            // Calculate duration from timestamps
-            let duration = call.duration || 0;
-            if (!duration && call.startedAt && call.endedAt) {
-                const start = new Date(call.startedAt);
-                const end = new Date(call.endedAt);
-                duration = (end - start) / 1000; // Convert ms to seconds
-            }
+            const duration = getCallDuration(call);
+            const transferIntent = getTransferIntent(call);
+            const routed = call.endedReason === 'assistant-forwarded-call';
+            const transferAttempted = Boolean(transferIntent);
+            const intentIdentified = Boolean(transferIntent || transferReason);
+            const notRouted = !transferAttempted && (call.endedReason === 'customer-ended-call' || call.endedReason === 'assistant-ended-call');
+            const hangupBeforeRoute = transferAttempted && !routed && call.endedReason === 'customer-ended-call';
+            const spamLikely = isSpamLikelyShortNoSpeech(call, duration);
 
             // Extract email
             const email = extractEmail(call);
@@ -214,79 +339,85 @@ async function generateIntradayReport() {
                 hangupType: hangupType,
                 transferReason: transferReason,
                 spamType: spamType,
-                endedReason: call.endedReason
+                endedReason: call.endedReason,
+                transferIntent: transferIntent,
+                routed: routed,
+                transferAttempted: transferAttempted,
+                intentIdentified: intentIdentified,
+                notRouted: notRouted,
+                hangupBeforeRoute: hangupBeforeRoute,
+                spamLikely: spamLikely
             };
         });
 
-        // Enrich calls with classification data
-        const enrichedCalls = processedCalls.map(call => {
-            return {
-                id: call.id,
-                createdAt: call.createdAt,
-                customerNumber: call.customerNumber || 'Unknown',
-                customerName: call.customerName || 'Unknown',
-                email: call.email || 'N/A',
-                duration: call.duration || 0,
-                summary: call.summary || 'No summary',
-                category: call.category,
-                bookingStatus: call.bookingStatus,
-                hangupType: call.hangupType,
-                transferReason: call.transferReason,
-                spamType: call.spamType,
-                endedReason: call.endedReason
-            };
-        });
+        // 5. Calculate routing metrics
+        const totalCalls = processedCalls.length;
+        const spamCalls = processedCalls.filter(c => c.category?.toLowerCase() === 'spam').length;
+        const spamLikelyCalls = processedCalls.filter(c => c.spamLikely).length;
+        const intentIdentified = processedCalls.filter(c => c.intentIdentified).length;
+        const transferAttempted = processedCalls.filter(c => c.transferAttempted).length;
+        const routedCalls = processedCalls.filter(c => c.routed).length;
+        const notRoutedCalls = processedCalls.filter(c => c.notRouted).length;
+        const hangupBeforeRoute = processedCalls.filter(c => c.hangupBeforeRoute).length;
 
-        // 5. Calculate metrics (using unified taxonomy)
+        const notRoutedDurations = processedCalls.filter(c => c.notRouted && c.duration > 0).map(c => c.duration);
+        const routedDurations = processedCalls.filter(c => c.routed && c.duration > 0).map(c => c.duration);
+
+        const notRoutedStats = computeDurationStats(notRoutedDurations);
+        const routedStats = computeDurationStats(routedDurations);
+        const notRoutedBuckets = computeDurationBuckets(notRoutedDurations);
+
+        const routingRate = totalCalls > 0 ? ((routedCalls / totalCalls) * 100).toFixed(1) : '0.0';
+        const transferAttemptRate = totalCalls > 0 ? ((transferAttempted / totalCalls) * 100).toFixed(1) : '0.0';
+        const transferFailureRate = transferAttempted > 0
+            ? (((transferAttempted - routedCalls) / transferAttempted) * 100).toFixed(1)
+            : '0.0';
+        const spamRate = totalCalls > 0 ? ((spamCalls / totalCalls) * 100).toFixed(1) : '0.0';
+        const spamLikelyRate = totalCalls > 0 ? ((spamLikelyCalls / totalCalls) * 100).toFixed(1) : '0.0';
+
+        // After-hours calls (outside business hours)
+        const businessHours = config.client.businessHours || { start: 8, end: 17, days: [1, 2, 3, 4, 5] };
+        const afterHoursCalls = processedCalls.filter(c => {
+            if (!c.createdAt) return false;
+            const callTime = toZonedTime(new Date(c.createdAt), TIME_ZONE);
+            const hour = callTime.getHours();
+            const day = callTime.getDay();
+            return hour < businessHours.start || hour >= businessHours.end || !businessHours.days.includes(day);
+        }).length;
+
+        // Transfer reasons (routed only)
+        const transferReasons = {};
+        for (const call of processedCalls) {
+            if (!call.routed) continue;
+            const reasonRaw = call.transferReason || call.transferIntent || 'unspecified';
+            const reason = String(reasonRaw).trim().toLowerCase() || 'unspecified';
+            transferReasons[reason] = (transferReasons[reason] || 0) + 1;
+        }
+
         const metrics = {
-            totalCalls: enrichedCalls.length,
-            bookingSuccess: enrichedCalls.filter(c => c.category?.toLowerCase() === 'booking-completed').length,
-            bookingAbandoned: enrichedCalls.filter(c => c.category?.toLowerCase() === 'booking-abandoned').length,
-            bookingTransferred: enrichedCalls.filter(c => c.category?.toLowerCase() === 'booking-transferred').length,
-            eligibleLeads: enrichedCalls.filter(c => ['booking-completed', 'booking-abandoned', 'booking-transferred'].includes(c.category?.toLowerCase())).length,
-            totalBookingAttempts: enrichedCalls.filter(c => ['booking-completed', 'booking-abandoned', 'booking-transferred'].includes(c.category?.toLowerCase())).length,
-            transferred: enrichedCalls.filter(c => c.category?.toLowerCase() === 'transferred').length,
-            spam: enrichedCalls.filter(c => c.category?.toLowerCase() === 'spam').length,
-            hangup: enrichedCalls.filter(c => c.category?.toLowerCase() === 'hangup').length,
-            hangupHighValue: enrichedCalls.filter(c => c.category?.toLowerCase() === 'hangup' && c.hangupType === 'high-value').length,
-            hangupModerate: enrichedCalls.filter(c => c.category?.toLowerCase() === 'hangup' && c.hangupType === 'moderate').length,
-            hangupLowValue: enrichedCalls.filter(c => c.category?.toLowerCase() === 'hangup' && c.hangupType === 'low-value').length,
-            other: enrichedCalls.filter(c => !['booking-completed', 'booking-abandoned', 'booking-transferred', 'transferred', 'spam', 'hangup'].includes(c.category?.toLowerCase())).length
+            totalCalls,
+            spamCalls,
+            intentIdentified,
+            transferAttempted,
+            routedCalls,
+            notRoutedCalls,
+            hangupBeforeRoute,
+            routingRate,
+            transferAttemptRate,
+            transferFailureRate,
+            spamRate,
+            spamLikelyCalls,
+            spamLikelyRate,
+            afterHoursCalls,
+            notRoutedStats,
+            notRoutedBuckets,
+            routedStats,
+            transferReasons
         };
 
-        metrics.successRate = metrics.eligibleLeads > 0
-            ? ((metrics.bookingSuccess / metrics.eligibleLeads) * 100).toFixed(1)
-            : 0;
+        console.log(`Metrics - Total: ${metrics.totalCalls}, Spam: ${metrics.spamCalls}, Intent: ${metrics.intentIdentified}, Attempted: ${metrics.transferAttempted}, Routed: ${metrics.routedCalls}, Not Routed: ${metrics.notRoutedCalls}, Hangup Before Route: ${metrics.hangupBeforeRoute}, After-Hours: ${metrics.afterHoursCalls}`);
 
-        metrics.containmentRate = metrics.eligibleLeads > 0
-            ? ((metrics.bookingSuccess / metrics.eligibleLeads) * 100).toFixed(1)
-            : 0;
-
-        // KPI Waterfall Rates
-        metrics.grossConvRate = metrics.totalCalls > 0
-            ? ((metrics.bookingSuccess / metrics.totalCalls) * 100).toFixed(1)
-            : 0;
-
-        metrics.eligConvRate = metrics.eligibleLeads > 0
-            ? ((metrics.bookingSuccess / metrics.eligibleLeads) * 100).toFixed(1)
-            : 0;
-
-        metrics.bookSuccessRate = metrics.totalBookingAttempts > 0
-            ? ((metrics.bookingSuccess / metrics.totalBookingAttempts) * 100).toFixed(1)
-            : 0;
-
-        // Transfer breakdown by reason
-        const transferReasons = {};
-        enrichedCalls
-            .filter(c => c.category?.toLowerCase() === 'transferred' || c.category?.toLowerCase() === 'booking-transferred')
-            .forEach(c => {
-                const reason = c.transferReason || 'unspecified';
-                transferReasons[reason] = (transferReasons[reason] || 0) + 1;
-            });
-        metrics.transferReasons = transferReasons;
-
-        console.log(`Metrics - Total: ${metrics.totalCalls}, Eligible: ${metrics.eligibleLeads} (Success: ${metrics.bookingSuccess}, Abandoned: ${metrics.bookingAbandoned}, Transferred: ${metrics.bookingTransferred}), NonBooking-Transferred: ${metrics.transferred}, Spam: ${metrics.spam}, Hangup: ${metrics.hangup} (High: ${metrics.hangupHighValue}, Mod: ${metrics.hangupModerate}, Low: ${metrics.hangupLowValue}), Other: ${metrics.other}`);
-
+        // 6. Generate Report with detailed metrics
         // 6. Generate Report with detailed metrics
         const aiName = config.client.aiAssistantName;
         const businessName = config.client.name;
@@ -298,11 +429,36 @@ async function generateIntradayReport() {
             callPurposesList = config.client.callPurposes.map(p => `- ${p}`).join('\n');
         }
 
+        const notRoutedBucketRows = Object.entries(metrics.notRoutedBuckets)
+            .map(([bucket, count]) => `| ${bucket} | ${count} |`)
+            .join('\n');
+
+        const routedTotal = metrics.routedCalls;
+        const transferReasonRows = Object.entries(metrics.transferReasons).length > 0
+            ? Object.entries(metrics.transferReasons).map(([reason, count]) => {
+                const pct = routedTotal > 0 ? ((count / routedTotal) * 100).toFixed(1) : '0.0';
+                return `| ${reason} | ${count} | ${pct}% |`;
+            }).join('\n')
+            : '| No routed calls | 0 | 0% |';
+
+        const topNotRouted = [...processedCalls]
+            .filter(c => c.notRouted)
+            .sort((a, b) => (b.duration || 0) - (a.duration || 0))
+            .slice(0, 10)
+            .map(call => {
+                const timeStr = call.createdAt
+                    ? format(toZonedTime(new Date(call.createdAt), TIME_ZONE), 'h:mm a')
+                    : 'N/A';
+                const summary = cleanSummaryText(call.summary || '');
+                return `| ${timeStr} | ${formatDuration(call.duration || 0)} | ${call.endedReason || 'unknown'} | ${summary} |`;
+            })
+            .join('\n');
+
         const reportPrompt = `
 You are writing an **Intraday Status Report** for the ${businessName} executive team.
 
 **BUSINESS CONTEXT:**
-${businessName} is ${businessDesc}. ${aiName} (AI assistant) handles inbound calls to:
+${businessName} is ${businessDesc}. ${aiName} (AI assistant) routes inbound calls to the correct department.
 ${callPurposesList}
 
 **Context**:
@@ -311,18 +467,18 @@ ${callPurposesList}
 - Total Calls So Far: ${metrics.totalCalls}
 
 **Metrics**:
-- Booking Success: ${metrics.bookingSuccess}
-- Eligible Leads: ${metrics.eligibleLeads}
-- Total Booking Attempts (including transfers): ${metrics.totalBookingAttempts}
-- Success Rate: ${metrics.successRate}%
-- Containment Rate: ${metrics.containmentRate}%
-- Transferred: ${metrics.transferred}
-- Spam: ${metrics.spam}
-- Hangup: ${metrics.hangup}
-- Other: ${metrics.other}
-
-**Call Data**:
-${JSON.stringify(enrichedCalls, null, 2)}
+- Total Calls: ${metrics.totalCalls}
+- Spam Calls: ${metrics.spamCalls} (${metrics.spamRate}%)
+- Spam Likely (short/no speech): ${metrics.spamLikelyCalls} (${metrics.spamLikelyRate}%)
+- Intent Identified: ${metrics.intentIdentified}
+- Transfer Attempted: ${metrics.transferAttempted} (${metrics.transferAttemptRate}%)
+- Routed: ${metrics.routedCalls} (${metrics.routingRate}%)
+- Transfer Failure Rate: ${metrics.transferFailureRate}%
+- Not Routed: ${metrics.notRoutedCalls}
+- Hangup Before Route: ${metrics.hangupBeforeRoute}
+- After-Hours Calls: ${metrics.afterHoursCalls}
+- Routed Duration (Avg/Median): ${formatDuration(metrics.routedStats.avg)} / ${formatDuration(metrics.routedStats.median)}
+- Not-Routed Duration (Avg/Median/P90): ${formatDuration(metrics.notRoutedStats.avg)} / ${formatDuration(metrics.notRoutedStats.median)} / ${formatDuration(metrics.notRoutedStats.p90)}
 
 **IMPORTANT - Seasonality & Business Patterns:**
 Apply your knowledge of typical business call patterns when analyzing trends:
@@ -349,48 +505,40 @@ When you see low volume, ask yourself: "Is this expected given the day/week/seas
 # Intraday Status Report - ${todayStr} (${reportTimeStr} ${TIME_ZONE.split('/')[1]})
 
 ## Executive Summary
-(3 concise paragraphs covering today's performance, key trends, and notable patterns)
+(3 concise paragraphs covering routing performance, transfer efficiency, and notable patterns)
 
-## Today's Performance
+## Today's Routing Performance
 
 | Metric | Count | % |
 |--------|-------|---|
 | Total Calls | ${metrics.totalCalls} | 100% |
-|--------|-------|---|
-| Eligible Leads | ${metrics.eligibleLeads} | - |
-| → Booking Success | ${metrics.bookingSuccess} | ${metrics.successRate}% |
-| → Booking Abandoned | ${metrics.bookingAbandoned} | - |
-| → Booking Transferred | ${metrics.bookingTransferred} | - |
-| Transferred (no booking attempt) | ${metrics.transferred} | - |
-| Spam | ${metrics.spam} | - |
-| Hangup (high-value - callback priority) | ${metrics.hangupHighValue} | - |
-| Hangup (moderate - medium priority) | ${metrics.hangupModerate} | - |
-| Hangup (low-value - skip callbacks) | ${metrics.hangupLowValue} | - |
-| Other | ${metrics.other} | - |
+| Spam Calls | ${metrics.spamCalls} | ${metrics.spamRate}% |
+| Spam Likely (short/no speech) | ${metrics.spamLikelyCalls} | ${metrics.spamLikelyRate}% |
+| Intent Identified | ${metrics.intentIdentified} | - |
+| Transfer Attempted | ${metrics.transferAttempted} | ${metrics.transferAttemptRate}% |
+| Routed | ${metrics.routedCalls} | ${metrics.routingRate}% |
+| Not Routed | ${metrics.notRoutedCalls} | - |
+| Hangup Before Route | ${metrics.hangupBeforeRoute} | - |
+| After-Hours Calls | ${metrics.afterHoursCalls} | - |
 
-**Success Rate**: ${metrics.successRate}%
-**Containment Rate**: ${metrics.containmentRate}%
+## Duration Quality
+- **Routed Duration (Avg/Median):** ${formatDuration(metrics.routedStats.avg)} / ${formatDuration(metrics.routedStats.median)}
+- **Not-Routed Duration (Avg/Median/P90):** ${formatDuration(metrics.notRoutedStats.avg)} / ${formatDuration(metrics.notRoutedStats.median)} / ${formatDuration(metrics.notRoutedStats.p90)}
 
-## KPI Waterfall
-| Metric | Value |
+### Not-Routed Duration Histogram
+| Bucket | Count |
 |--------|-------|
-| Gross Conv % (Booked/Total) | ${metrics.grossConvRate}% |
-| Elig Conv % (Booked/Eligible) | ${metrics.eligConvRate}% |
-| Book Success % (Booked/Attempts) | ${metrics.bookSuccessRate}% |
+${notRoutedBucketRows || '| No not-routed calls | 0 |'}
 
-## Transfer Breakdown by Reason
-| Reason | Count | % of Transfers |
-|--------|-------|----------------|
-${Object.entries(metrics.transferReasons).length > 0
-    ? Object.entries(metrics.transferReasons).map(([reason, count]) => {
-        const totalTransfers = metrics.transferred + metrics.bookingTransferred;
-        const pct = totalTransfers > 0 ? ((count / totalTransfers) * 100).toFixed(1) : 0;
-        return `| ${reason} | ${count} | ${pct}% |`;
-    }).join('\n')
-    : '| No transfers | 0 | 0% |'}
+## Transfer Breakdown by Reason (Routed Only)
+| Reason | Count | % of Routed |
+|--------|-------|-------------|
+${transferReasonRows}
 
-## Repeat Numbers Analysis
-(Identify any phone numbers that called multiple times today and provide brief context)
+## Top 10 Not-Routed Call Summaries
+| Time | Duration | Ended Reason | Summary |
+|------|----------|--------------|---------|
+${topNotRouted || '| No not-routed calls | - | - | - |'}
 
 ## Call Log
 
@@ -400,19 +548,8 @@ Create an HTML table with these columns:
 - Email
 - Duration
 - Category
-- Status/Type (show "N/A" for booking calls, hangupType for hangup calls, transferReason for transfers, spamType for spam)
+- Status/Type (show transferReason for routed calls, spamType for spam, hangupType for hangups, and "N/A" otherwise)
 - Summary
-
-**IMPORTANT - Color coding based on category AND substatus (apply to entire <tr>):**
-- booking-completed: style="color: #2e7d32; font-weight: bold;" (green bold)
-- booking-abandoned: style="color: #ff6f00; font-weight: bold;" (orange bold - high-value lead)
-- booking-transferred: style="color: #ff6f00; font-weight: bold;" (orange bold)
-- hangup (high-value): style="color: #ff9800; font-weight: bold;" (amber bold - callback priority)
-- hangup (moderate): style="color: #fbc02d;" (yellow - medium priority)
-- hangup (low-value): style="color: #c62828;" (red - low priority)
-- transferred: style="color: #1565c0;" (blue)
-- spam: style="color: #757575;" (gray)
-- All other rows: no color styling
 
 Use this format:
 <table border="1" style="border-collapse: collapse; width: 100%;">
@@ -440,6 +577,49 @@ Use this format:
         reportText = reportText.replace(/^\s*html\s*$/gmi, '');
         reportText = reportText.trim();
 
+        const callLogRows = processedCalls.map(call => {
+            const timeStr = call.createdAt
+                ? format(toZonedTime(new Date(call.createdAt), TIME_ZONE), 'h:mm a')
+                : 'N/A';
+            const statusType = call.routed
+                ? (call.transferReason || call.transferIntent || 'N/A')
+                : (call.category?.toLowerCase() === 'spam'
+                    ? (call.spamType || 'N/A')
+                    : (call.category?.toLowerCase() === 'hangup'
+                        ? (call.hangupType || 'N/A')
+                        : 'N/A'));
+            const summary = cleanSummaryText(call.summary || '');
+
+            return `<tr>
+  <td style="padding: 8px; border: 1px solid #ddd;">${timeStr}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${call.customerNumber || 'Unknown'}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${call.email || 'N/A'}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${formatDuration(call.duration || 0)}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${categoryEmoji(call.category)}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${statusType}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${summary}</td>
+</tr>`;
+        }).join('\n');
+
+        const callLogTable = `
+## Call Log
+
+<table border="1" style="border-collapse: collapse; width: 100%;">
+  <tr style="background-color: #f5f5f5;">
+    <th style="padding: 8px; border: 1px solid #ddd;">Time (${TIME_ZONE.split('/')[1]})</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Caller #</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Email</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Duration</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Category</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Status/Type</th>
+    <th style="padding: 8px; border: 1px solid #ddd;">Summary</th>
+  </tr>
+  ${callLogRows}
+</table>
+`;
+
+        reportText = `${reportText}\n\n${callLogTable}`;
+
         // Save report
         const outputFile = path.join(config.paths.reportsDir, `intraday_report_${todayStr}.md`);
         fs.writeFileSync(outputFile, reportText);
@@ -451,9 +631,9 @@ Use this format:
             dateRange: todayStr,
             reportPath: outputFile,
             callsToday: metrics.totalCalls.toLocaleString(),
-            todaySuccessRate: `${metrics.successRate}%`,
+            todaySuccessRate: `${metrics.routingRate}%`,
             callsInPeriod: metrics.totalCalls.toLocaleString(),
-            periodSuccessRate: `${metrics.successRate}%`
+            periodSuccessRate: `${metrics.routingRate}%`
         };
 
         const metaPath = outputFile.replace('.md', '_meta.json');

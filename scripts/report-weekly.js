@@ -132,6 +132,112 @@ function extractEmail(call) {
     return email;
 }
 
+const TRANSFER_TOOL_NAMES = new Set(['intent_transfer', 'transfer_intent', 'transferCall']);
+
+function getCallDuration(call) {
+    let duration = call.duration || 0;
+    if (!duration && call.startedAt && call.endedAt) {
+        const start = new Date(call.startedAt);
+        const end = new Date(call.endedAt);
+        duration = (end - start) / 1000;
+    }
+    return duration;
+}
+
+function getTransferIntent(call) {
+    if (Array.isArray(call.toolCalls)) {
+        const tool = call.toolCalls.find(t => TRANSFER_TOOL_NAMES.has(t.function?.name));
+        if (tool?.function?.arguments) {
+            try {
+                const args = JSON.parse(tool.function.arguments);
+                return args.destination || args.intent || args.department || args.queue || null;
+            } catch (e) {}
+        }
+    }
+
+    if (Array.isArray(call.messages)) {
+        for (const msg of call.messages) {
+            if (!msg.toolCalls) continue;
+            const tool = msg.toolCalls.find(t => TRANSFER_TOOL_NAMES.has(t.function?.name));
+            if (tool?.function?.arguments) {
+                try {
+                    const args = JSON.parse(tool.function.arguments);
+                    return args.destination || args.intent || args.department || args.queue || null;
+                } catch (e) {}
+            }
+        }
+    }
+
+    return null;
+}
+
+function percentile(values, pct) {
+    if (!values.length) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const rank = Math.ceil((pct / 100) * sorted.length) - 1;
+    return sorted[Math.max(0, Math.min(rank, sorted.length - 1))];
+}
+
+function computeDurationStats(values) {
+    if (!values.length) {
+        return { avg: 0, median: 0, p90: 0 };
+    }
+    const avg = Math.round(values.reduce((sum, v) => sum + v, 0) / values.length);
+    const median = percentile(values, 50);
+    const p90 = percentile(values, 90);
+    return { avg, median, p90 };
+}
+
+function computeDurationBuckets(values) {
+    const buckets = {
+        '0-15s': 0,
+        '15-30s': 0,
+        '30-60s': 0,
+        '60-120s': 0,
+        '120s+': 0
+    };
+
+    for (const v of values) {
+        if (v < 15) buckets['0-15s'] += 1;
+        else if (v < 30) buckets['15-30s'] += 1;
+        else if (v < 60) buckets['30-60s'] += 1;
+        else if (v < 120) buckets['60-120s'] += 1;
+        else buckets['120s+'] += 1;
+    }
+
+    return buckets;
+}
+
+function hasCustomerSpeech(call) {
+    if (Array.isArray(call.messages)) {
+        return call.messages.some(msg =>
+            msg.role === 'user' &&
+            typeof msg.message === 'string' &&
+            msg.message.trim().match(/\w+/)
+        );
+    }
+    return false;
+}
+
+function isSpamLikelyShortNoSpeech(call, durationSeconds) {
+    return durationSeconds > 0 && durationSeconds <= 10 && !hasCustomerSpeech(call);
+}
+
+function cleanSummaryText(summary) {
+    if (!summary) return 'No summary';
+    let cleaned = summary.replace(/\s+/g, ' ').trim();
+    // Strip all known verbose prefixes (including markdown bold variants)
+    cleaned = cleaned.replace(/^\*{0,2}here'?s a summary[^:]*:\*{0,2}\s*/i, '');
+    cleaned = cleaned.replace(/^\*{0,2}summary of (?:the )?interaction:?\*{0,2}\s*/i, '');
+    cleaned = cleaned.replace(/^\*{0,2}summary:?\*{0,2}\s*/i, '');
+    // Remove leading ** if leftover
+    cleaned = cleaned.replace(/^\*{1,2}\s*/, '');
+    if (cleaned.length <= 100) return cleaned || 'No summary';
+    // Truncate at word boundary + ellipsis
+    const truncated = cleaned.slice(0, 100).replace(/\s+\S*$/, '');
+    return (truncated || cleaned.slice(0, 100)) + '...';
+}
+
 // Process and enrich calls
 function processAndEnrichCalls(calls, enrichmentMap) {
     return calls.map(call => {
@@ -139,12 +245,9 @@ function processAndEnrichCalls(calls, enrichmentMap) {
 
         // Extract email and duration
         const email = extractEmail(call);
-        let duration = call.duration || 0;
-        if (!duration && call.startedAt && call.endedAt) {
-            const start = new Date(call.startedAt);
-            const end = new Date(call.endedAt);
-            duration = (end - start) / 1000;
-        }
+        const duration = getCallDuration(call);
+        const transferIntent = getTransferIntent(call);
+        const spamLikely = isSpamLikelyShortNoSpeech(call, duration);
 
         // Extract classification
         let category = 'unknown';
@@ -160,6 +263,12 @@ function processAndEnrichCalls(calls, enrichmentMap) {
             spamType = c.spamType || null;
         }
 
+        const routed = call.endedReason === 'assistant-forwarded-call';
+        const transferAttempted = Boolean(transferIntent);
+        const intentIdentified = Boolean(transferIntent || transferReason);
+        const notRouted = !transferAttempted && (call.endedReason === 'customer-ended-call' || call.endedReason === 'assistant-ended-call');
+        const hangupBeforeRoute = transferAttempted && !routed && call.endedReason === 'customer-ended-call';
+
         return {
             ...call,
             category,
@@ -168,8 +277,17 @@ function processAndEnrichCalls(calls, enrichmentMap) {
             spamType,
             email,
             duration,
+            transferIntent,
+            routed,
+            transferAttempted,
+            intentIdentified,
+            notRouted,
+            hangupBeforeRoute,
             phoneNumber: call.customer?.number || 'Unknown',
-            customerName: call.customer?.name || 'Unknown'
+            customerName: call.customer?.name || 'Unknown',
+            endedReason: call.endedReason,
+            summary: call.summary || 'No summary',
+            spamLikely: spamLikely
         };
     });
 }
@@ -178,67 +296,22 @@ function processAndEnrichCalls(calls, enrichmentMap) {
 function calculateMetrics(enrichedCalls) {
     const totalCalls = enrichedCalls.length;
 
-    // Category counts
-    const bookingCompleted = enrichedCalls.filter(c => c.category === 'booking-completed').length;
-    const bookingAbandoned = enrichedCalls.filter(c => c.category === 'booking-abandoned').length;
-    const bookingTransferred = enrichedCalls.filter(c => c.category === 'booking-transferred').length;
-    const transferredCalls = enrichedCalls.filter(c => c.category === 'transferred');
-    const transferred = transferredCalls.length;
-    const spam = enrichedCalls.filter(c => c.category === 'spam').length;
+    const spamCalls = enrichedCalls.filter(c => c.category === 'spam').length;
+    const spamLikelyCalls = enrichedCalls.filter(c => c.spamLikely).length;
+    const intentIdentified = enrichedCalls.filter(c => c.intentIdentified).length;
+    const transferAttempted = enrichedCalls.filter(c => c.transferAttempted).length;
+    const routedCalls = enrichedCalls.filter(c => c.routed).length;
+    const notRoutedCalls = enrichedCalls.filter(c => c.notRouted).length;
+    const hangupBeforeRoute = enrichedCalls.filter(c => c.hangupBeforeRoute).length;
 
-    // Hangup breakdown
-    const hangupHighValue = enrichedCalls.filter(c => c.category === 'hangup' && c.hangupType === 'high-value').length;
-    const hangupModerate = enrichedCalls.filter(c => c.category === 'hangup' && c.hangupType === 'moderate').length;
-    const hangupLowValue = enrichedCalls.filter(c => c.category === 'hangup' && c.hangupType === 'low-value').length;
-    const hangupTotal = hangupHighValue + hangupModerate + hangupLowValue;
+    const notRoutedDurations = enrichedCalls.filter(c => c.notRouted && c.duration > 0).map(c => c.duration);
+    const routedDurations = enrichedCalls.filter(c => c.routed && c.duration > 0).map(c => c.duration);
 
-    // Transfer breakdown (dynamic by client config)
-    const transferReasons = {};
-    const configuredTransferReasons = Object.keys(config.client.transferReasons || {});
-    if (configuredTransferReasons.length > 0) {
-        configuredTransferReasons.forEach(reason => {
-            transferReasons[reason] = 0;
-        });
-    }
+    const notRoutedStats = computeDurationStats(notRoutedDurations);
+    const routedStats = computeDurationStats(routedDurations);
+    const notRoutedBuckets = computeDurationBuckets(notRoutedDurations);
 
-    for (const call of transferredCalls) {
-        const reasonRaw = call.transferReason || 'unspecified';
-        const reason = String(reasonRaw).trim().toLowerCase() || 'unspecified';
-        if (transferReasons[reason] === undefined) {
-            transferReasons[reason] = 0;
-        }
-        transferReasons[reason] += 1;
-    }
-
-    // Metrics calculations
-    const eligibleLeads = bookingCompleted + bookingAbandoned + bookingTransferred;
-    const successRate = eligibleLeads > 0 ? Math.round((bookingCompleted / eligibleLeads) * 100) : 0;
-
-    // Email capture
-    const emailsCaptured = enrichedCalls.filter(c => c.email && c.email !== 'N/A').length;
-    const emailCaptureRate = totalCalls > 0 ? Math.round((emailsCaptured / totalCalls) * 100) : 0;
-
-    // Duration metrics
     const totalMinutes = enrichedCalls.reduce((sum, c) => sum + (c.duration || 0), 0) / 60;
-    const callsWithDuration = enrichedCalls.filter(c => c.duration > 0);
-    const avgDuration = callsWithDuration.length > 0
-        ? Math.round(callsWithDuration.reduce((sum, c) => sum + c.duration, 0) / callsWithDuration.length)
-        : 0;
-
-    // Average duration by category
-    const avgDurationByCategory = {};
-    ['booking-completed', 'booking-abandoned', 'booking-transferred', 'transferred', 'spam', 'hangup'].forEach(cat => {
-        const callsInCat = enrichedCalls.filter(c => c.category === cat && c.duration > 0);
-        avgDurationByCategory[cat] = callsInCat.length > 0
-            ? Math.round(callsInCat.reduce((sum, c) => sum + c.duration, 0) / callsInCat.length)
-            : 0;
-    });
-
-    // Spam detection speed
-    const spamCalls = enrichedCalls.filter(c => c.category === 'spam' && c.duration > 0);
-    const avgSpamDuration = spamCalls.length > 0
-        ? Math.round(spamCalls.reduce((sum, c) => sum + c.duration, 0) / spamCalls.length)
-        : 0;
 
     // After-hours calls (outside business hours)
     const businessHours = config.client.businessHours || { start: 8, end: 17, days: [1, 2, 3, 4, 5] };
@@ -250,27 +323,42 @@ function calculateMetrics(enrichedCalls) {
         return hour < businessHours.start || hour >= businessHours.end || !businessHours.days.includes(day);
     }).length;
 
+    const transferReasons = {};
+    for (const call of enrichedCalls) {
+        if (!call.routed) continue;
+        const reasonRaw = call.transferReason || call.transferIntent || 'unspecified';
+        const reason = String(reasonRaw).trim().toLowerCase() || 'unspecified';
+        transferReasons[reason] = (transferReasons[reason] || 0) + 1;
+    }
+
+    const routingRate = totalCalls > 0 ? Math.round((routedCalls / totalCalls) * 100) : 0;
+    const transferAttemptRate = totalCalls > 0 ? Math.round((transferAttempted / totalCalls) * 100) : 0;
+    const transferFailureRate = transferAttempted > 0
+        ? Math.round(((transferAttempted - routedCalls) / transferAttempted) * 100)
+        : 0;
+    const spamRate = totalCalls > 0 ? Math.round((spamCalls / totalCalls) * 100) : 0;
+    const spamLikelyRate = totalCalls > 0 ? Math.round((spamLikelyCalls / totalCalls) * 100) : 0;
+
     return {
         totalCalls,
-        bookingCompleted,
-        bookingAbandoned,
-        bookingTransferred,
-        eligibleLeads,
-        successRate,
-        transferred,
-        spam,
-        hangupHighValue,
-        hangupModerate,
-        hangupLowValue,
-        hangupTotal,
+        spamCalls,
+        spamLikelyCalls,
+        spamLikelyRate,
+        intentIdentified,
+        transferAttempted,
+        routedCalls,
+        notRoutedCalls,
+        hangupBeforeRoute,
+        routingRate,
+        transferAttemptRate,
+        transferFailureRate,
+        spamRate,
+        afterHoursCalls,
+        notRoutedStats,
+        notRoutedBuckets,
+        routedStats,
         transferReasons,
-        emailsCaptured,
-        emailCaptureRate,
-        totalMinutes,
-        avgDuration,
-        avgDurationByCategory,
-        avgSpamDuration,
-        afterHoursCalls
+        totalMinutes
     };
 }
 
@@ -444,7 +532,7 @@ function analyzeWeekOfMonth(enrichedCalls, monthKey) {
 // Format duration helper
 function formatDuration(seconds) {
     const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.round(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
@@ -533,31 +621,33 @@ async function generateExecutiveSummary(metrics, previousMetrics, weekKey) {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const aiName = config.client.aiAssistantName;
 
-    const prompt = `You are an executive reporting assistant analyzing ${aiName} (an AI phone assistant for ${config.client.name}) performance data.
+    const prompt = `You are an executive reporting assistant analyzing ${aiName} (an AI phone assistant for ${config.client.name}) routing performance.
 
 Generate a concise executive summary (3-4 paragraphs) based on this week's performance:
 
 **Week ${weekKey} Performance:**
 - Total Calls: ${metrics.totalCalls}${previousMetrics ? ` (${metrics.totalCalls > previousMetrics.totalCalls ? '+' : ''}${metrics.totalCalls - previousMetrics.totalCalls} vs last week)` : ''}
-- Booking Success Rate: ${metrics.successRate}%${previousMetrics ? ` (${metrics.successRate >= previousMetrics.successRate ? '+' : ''}${metrics.successRate - previousMetrics.successRate}% vs last week)` : ''}
-- Eligible Leads: ${metrics.eligibleLeads}
-- Booking Completed: ${metrics.bookingCompleted}
-- Booking Abandoned: ${metrics.bookingAbandoned} (HIGH-VALUE RECOVERY OPPORTUNITY)
-- High-Value Hangups: ${metrics.hangupHighValue} (CALLBACK PRIORITY)
-- Email Capture Rate: ${metrics.emailCaptureRate}%
-- Spam Detection: ${metrics.avgSpamDuration}s average
-- After-Hours Calls: ${metrics.afterHoursCalls} (calls that would've been missed)
+- Routed Calls: ${metrics.routedCalls} (${metrics.routingRate}% routing rate)${previousMetrics ? ` (${metrics.routingRate >= previousMetrics.routingRate ? '+' : ''}${metrics.routingRate - previousMetrics.routingRate}% vs last week)` : ''}
+- Transfer Attempted: ${metrics.transferAttempted} (${metrics.transferAttemptRate}%)
+- Transfer Failure Rate: ${metrics.transferFailureRate}%
+- Not Routed: ${metrics.notRoutedCalls}
+- Hangup Before Route: ${metrics.hangupBeforeRoute}
+- Spam Calls: ${metrics.spamCalls} (${metrics.spamRate}%)
+- Spam Likely (short/no speech): ${metrics.spamLikelyCalls} (${metrics.spamLikelyRate}%)
+- After-Hours Calls: ${metrics.afterHoursCalls}
+- Routed Duration (Avg/Median): ${formatDuration(metrics.routedStats.avg)} / ${formatDuration(metrics.routedStats.median)}
+- Not-Routed Duration (Avg/P90): ${formatDuration(metrics.notRoutedStats.avg)} / ${formatDuration(metrics.notRoutedStats.p90)}
 
 **IMPORTANT - Statistical Context:**
 - Weeks with fewer than 20 total calls have lower statistical significance - temper analysis accordingly
 - When comparing week-over-week, note if either week had <20 calls before drawing conclusions
-- Avoid dramatic language (e.g., "100% success") for small sample sizes
+- Avoid dramatic language for small sample sizes
 - Include raw numbers with percentages where relevant (e.g., "80% (4/5)" not just "80%")
 
 **Template Structure:**
-1. **Performance Overview**: Highlight call volume, booking success rate trends, and key wins
-2. **Revenue Impact**: Focus on eligible leads, bookings completed, and recovery opportunities (abandoned bookings + high-value hangups)
-3. **Areas for Improvement**: Identify 2-3 specific issues (e.g., success rate decline, email capture gaps, transfer trends)
+1. **Performance Overview**: Highlight call volume, routing rate trends, and key wins
+2. **Routing Effectiveness**: Focus on transfer attempts vs successful routes and failure rate
+3. **Caller Experience**: Not-routed duration stats and hangups before route
 4. **Strategic Insights**: One actionable insight or pattern worth noting
 
 Keep it executive-friendly: focus on business impact, not technical details. Use specific numbers.`;
@@ -567,13 +657,13 @@ Keep it executive-friendly: focus on business impact, not technical details. Use
             model: 'gpt-5.1',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.7,
-            max_tokens: 800
+            max_completion_tokens: 800
         });
 
         return response.choices[0].message.content.trim();
     } catch (error) {
         console.warn('Failed to generate AI summary:', error.message);
-        return `**Week ${weekKey} Performance Overview**\n\n${aiName} handled ${metrics.totalCalls} calls this week${previousMetrics ? `, ${metrics.totalCalls > previousMetrics.totalCalls ? 'up' : 'down'} ${Math.abs(metrics.totalCalls - previousMetrics.totalCalls)} from last week` : ''}. Booking success rate was ${metrics.successRate}%, generating ${metrics.bookingCompleted} confirmed appointments.\n\n**Key Opportunities:** ${metrics.bookingAbandoned} booking abandonments and ${metrics.hangupHighValue} high-value hangups represent immediate follow-up opportunities.\n\n_(AI summary generation failed - using template)_`;
+        return `**Week ${weekKey} Performance Overview**\n\n${aiName} handled ${metrics.totalCalls} calls this week${previousMetrics ? `, ${metrics.totalCalls > previousMetrics.totalCalls ? 'up' : 'down'} ${Math.abs(metrics.totalCalls - previousMetrics.totalCalls)} from last week` : ''}. Routing rate was ${metrics.routingRate}% with ${metrics.routedCalls} routed calls.\n\n**Key Opportunities:** ${metrics.notRoutedCalls} calls were not routed, and ${metrics.hangupBeforeRoute} callers hung up before routing completed.\n\n_(AI summary generation failed - using template)_`;
     }
 }
 
@@ -635,40 +725,13 @@ async function generateWeeklyReport(weekKey, options = {}) {
     const metrics = calculateMetrics(enrichedCalls);
     const previousMetrics = enrichedPreviousCalls ? calculateMetrics(enrichedPreviousCalls) : null;
 
-    // Generate heatmap
-    console.log('Generating call volume heatmap...');
-    const heatmapConfig = config.report.heatmap || { intervalMinutes: 30, showWeekends: true };
-    const heatmap = generateHeatmap(enrichedCalls, heatmapConfig);
-    const heatmapMarkdown = formatHeatmapAsMarkdown(heatmap, heatmapConfig);
-    const peakHours = findPeakHours(heatmap, 5);
-
-    // Generate Day of Week analysis
-    console.log('Analyzing day of week patterns...');
-    const dowAnalysis = analyzeDayOfWeek(enrichedCalls, heatmap);
-
-    // Generate Week of Month analysis
-    console.log('Analyzing week of month patterns...');
-    const monthKey = weekKey.substring(0, 7); // Extract "2025-11" from "2025-W47"
-    const womAnalysis = analyzeWeekOfMonth(enrichedCalls, monthKey);
-
-    // Generate leads report
-    console.log('Extracting high-priority leads...');
-    const leadsReport = generateLeadsReport(enrichedCalls, weekKey, config.paths.reportsDir);
-
-    // Calculate ROI
-    console.log('Calculating ROI metrics...');
-    const costComparison = compareAIvsHuman(metrics.totalMinutes, metrics.totalCalls, config.report.pricing);
-
-    // Generate scorecard
-    const scorecard = generateScorecard(metrics, previousMetrics, config.report.targets);
-
     // Generate executive summary
     console.log('Generating executive summary...');
     const executiveSummary = await generateExecutiveSummary(metrics, previousMetrics, weekKey);
 
     // Build Markdown Report
     const aiName = config.client.aiAssistantName;
-    let md = `# ${aiName} Weekly Performance Report\n`;
+    let md = `# ${aiName} Weekly Routing Report\n\n`;
     md += `## ${config.client.name} - Week ${weekKey}\n\n`;
     md += `**Report Generated:** ${new Date().toLocaleString('en-US', { timeZone: TIME_ZONE })}\n\n`;
     md += `---\n\n`;
@@ -678,275 +741,78 @@ async function generateWeeklyReport(weekKey, options = {}) {
     md += executiveSummary;
     md += `\n\n---\n\n`;
 
-    // Performance Scorecard
-    md += `## Performance Scorecard\n\n`;
-    md += `| KPI | This Week | Target | Change | Grade |\n`;
-    md += `|-----|-----------|--------|--------|-------|\n`;
-    for (const score of scorecard) {
-        md += `| ${score.kpi} | ${score.value} | ${score.target} | ${score.change} | **${score.grade}** |\n`;
-    }
-    md += `\n**Overall Performance:** ${scorecard.filter(s => s.grade.startsWith('A')).length >= 3 ? 'A-' : 'B+'} (${scorecard.filter(s => s.grade.startsWith('A')).length} A's, ${scorecard.filter(s => s.grade.startsWith('B')).length} B's)\n\n`;
-    md += `---\n\n`;
-
-    // ROI Analysis
-    md += `## ROI Analysis: ${aiName} vs Human Receptionist\n\n`;
-    md += formatCostComparisonTable(costComparison);
-    md += `\n**24/7 Availability Impact:**\n`;
-    md += `- After-hours/weekend calls handled: ${metrics.afterHoursCalls} (${Math.round((metrics.afterHoursCalls / metrics.totalCalls) * 100)}%)\n`;
-    md += `- These calls would have gone to voicemail without ${aiName}\n`;
-    md += `- ${aiName} works 24/7, no PTO, handles unlimited concurrent calls\n\n`;
-    md += `---\n\n`;
-
-    // Call Volume Heatmap
-    md += `## Call Volume Heatmap (${heatmapConfig.intervalMinutes}-Minute Intervals)\n\n`;
-    md += heatmapMarkdown;
-    md += `\n**Peak Hours:**\n`;
-    for (let i = 0; i < peakHours.length; i++) {
-        const peak = peakHours[i];
-        md += `${i + 1}. ${peak.time} - ${peak.totalCount} calls (Peak day: ${peak.peakDay.toUpperCase()} with ${peak.peakDayCount} calls)\n`;
-    }
-    md += `\n---\n\n`;
-
-    // Day of Week Analysis
-    md += `## Day of Week Performance Analysis\n\n`;
-    md += `| Day | Total Calls | % of Week | Eligible Leads | Success Rate | Avg Duration | Hangup (H/M/L) | Peak Hour |\n`;
-    md += `|-----|-------------|-----------|----------------|--------------|--------------|----------------|----------|\n`;
-    for (const day of dowAnalysis) {
-        const hangupBreakdown = `${day.hangupHighValue}/${day.hangupModerate}/${day.hangupLowValue}`;
-        md += `| ${day.dayName} | ${day.totalCalls} | ${day.percentOfWeek}% | ${day.eligibleLeads} | ${day.successRate}% | ${formatDuration(day.avgDuration)} | ${hangupBreakdown} | ${day.peakHour} |\n`;
-    }
-
-    // Find best/worst performing days
-    const daysWithCalls = dowAnalysis.filter(d => d.totalCalls > 0);
-    if (daysWithCalls.length > 0) {
-        const bestDay = daysWithCalls.reduce((best, day) => day.successRate > best.successRate ? day : best);
-        const highestVolume = daysWithCalls.reduce((max, day) => day.totalCalls > max.totalCalls ? day : max);
-        const lowestVolume = daysWithCalls.reduce((min, day) => day.totalCalls < min.totalCalls ? day : min);
-
-        md += `\n**Key Insights:**\n`;
-        md += `- Best performing day: **${bestDay.dayName}** (${bestDay.successRate}% success rate)\n`;
-        md += `- Highest volume: **${highestVolume.dayName}** (${highestVolume.totalCalls} calls)\n`;
-        md += `- Lowest volume: **${lowestVolume.dayName}** (${lowestVolume.totalCalls} calls)\n`;
-    }
-
-    md += `\n---\n\n`;
-
-    // Week of Month Analysis
-    if (womAnalysis.length > 0) {
-        md += `## Week of Month Patterns (Calendar Weeks)\n\n`;
-        md += `| Week | Date Range | Calls | Eligible Leads | Success Rate | Avg Duration | Notes |\n`;
-        md += `|------|------------|-------|----------------|--------------|--------------|-------|\n`;
-        for (const week of womAnalysis) {
-            md += `| Week ${week.weekNum} | ${week.dateRange} | ${week.totalCalls} | ${week.eligibleLeads} | ${week.successRate}% | ${formatDuration(week.avgDuration)} | ${week.notes} |\n`;
-        }
-
-        // Add insights
-        if (womAnalysis.length > 1) {
-            const bestWeek = womAnalysis.reduce((best, week) => week.totalCalls > best.totalCalls ? week : best);
-            const worstWeek = womAnalysis.reduce((worst, week) => week.totalCalls < worst.totalCalls ? week : worst);
-
-            md += `\n**Insights:**\n`;
-            md += `- Week ${bestWeek.weekNum} had highest call volume (${bestWeek.totalCalls} calls)\n`;
-            md += `- Week ${worstWeek.weekNum} had lowest call volume (${worstWeek.totalCalls} calls)\n`;
-
-            // Check for end of month decline
-            const lastWeek = womAnalysis[womAnalysis.length - 1];
-            const secondToLastWeek = womAnalysis.length > 1 ? womAnalysis[womAnalysis.length - 2] : null;
-            if (secondToLastWeek && lastWeek.totalCalls < secondToLastWeek.totalCalls) {
-                const decline = Math.round(((secondToLastWeek.totalCalls - lastWeek.totalCalls) / secondToLastWeek.totalCalls) * 100);
-                md += `- End of month decline: ${decline}% fewer calls in Week ${lastWeek.weekNum} vs Week ${secondToLastWeek.weekNum}\n`;
-            }
-        }
-
-        md += `\n---\n\n`;
-    }
-
-    // Revenue Impact
-    md += `## Revenue Impact\n\n`;
-    md += `### Bookings Generated\n\n`;
+    // Weekly routing summary
+    md += `## Weekly Routing Summary\n\n`;
     md += `| Metric | Count | % |\n`;
-    md += `|--------|-------| - |\n`;
-    md += `| Booking Completed | ${metrics.bookingCompleted} | ${Math.round((metrics.bookingCompleted / metrics.totalCalls) * 100)}% |\n`;
-    md += `| Booking Abandoned | ${metrics.bookingAbandoned} | ${Math.round((metrics.bookingAbandoned / metrics.totalCalls) * 100)}% |\n`;
-    md += `| Booking Transferred | ${metrics.bookingTransferred} | ${Math.round((metrics.bookingTransferred / metrics.totalCalls) * 100)}% |\n`;
-    md += `| **Eligible Leads** | **${metrics.eligibleLeads}** | **${Math.round((metrics.eligibleLeads / metrics.totalCalls) * 100)}%** |\n`;
-    md += `\n**Success Rate:** ${metrics.successRate}% (${metrics.bookingCompleted} bookings ÷ ${metrics.eligibleLeads} eligible leads)\n\n`;
+    md += `|--------|-------|---|\n`;
+    md += `| Total Calls | ${metrics.totalCalls} | 100% |\n`;
+    md += `| Spam Calls | ${metrics.spamCalls} | ${metrics.spamRate}% |\n`;
+    md += `| Intent Identified | ${metrics.intentIdentified} | - |\n`;
+    md += `| Transfer Attempted | ${metrics.transferAttempted} | ${metrics.transferAttemptRate}% |\n`;
+    md += `| Routed | ${metrics.routedCalls} | ${metrics.routingRate}% |\n`;
+    md += `| Not Routed | ${metrics.notRoutedCalls} | - |\n`;
+    md += `| Hangup Before Route | ${metrics.hangupBeforeRoute} | - |\n`;
+    md += `| After-Hours Calls | ${metrics.afterHoursCalls} | - |\n\n`;
 
-    // High-Priority Leads
-    md += leadsReport.summary;
-    md += `\n### Lead Export\n`;
-    md += `📊 **CSV Export:** [high_priority_leads_${weekKey}.csv](${path.basename(leadsReport.csvPath)})\n`;
-    md += `- ${leadsReport.totalLeads} leads with phone numbers and emails for manual follow-up\n`;
-    md += `- Sorted by priority (HIGH → MEDIUM)\n\n`;
-    md += leadsReport.table;
+    md += `- **Transfer Failure Rate:** ${metrics.transferFailureRate}%\n\n`;
+
+    // Duration quality
+    md += `## Duration Quality\n\n`;
+    md += `- **Routed Duration (Avg/Median):** ${formatDuration(metrics.routedStats.avg)} / ${formatDuration(metrics.routedStats.median)}\n`;
+    md += `- **Not-Routed Duration (Avg/Median/P90):** ${formatDuration(metrics.notRoutedStats.avg)} / ${formatDuration(metrics.notRoutedStats.median)} / ${formatDuration(metrics.notRoutedStats.p90)}\n\n`;
+
+    md += `### Not-Routed Duration Histogram\n\n`;
+    md += `| Bucket | Count |\n`;
+    md += `|--------|-------|\n`;
+    for (const [bucket, count] of Object.entries(metrics.notRoutedBuckets)) {
+        md += `| ${bucket} | ${count} |\n`;
+    }
     md += `\n---\n\n`;
 
-    // Detailed Breakdowns
-    md += `## Detailed Performance Breakdowns\n\n`;
-
-    // Booking Outcomes
-    md += `### Booking Outcomes Funnel\n\n`;
-    md += `| Stage | Count | % of Total Calls | % of Eligible |\n`;
-    md += `|-------|-------|------------------|---------------|\n`;
-    md += `| Total Calls | ${metrics.totalCalls} | 100% | - |\n`;
-    md += `| Eligible Leads | ${metrics.eligibleLeads} | ${Math.round((metrics.eligibleLeads / metrics.totalCalls) * 100)}% | 100% |\n`;
-    md += `| └─ Booking Completed | ${metrics.bookingCompleted} | ${Math.round((metrics.bookingCompleted / metrics.totalCalls) * 100)}% | ${Math.round((metrics.bookingCompleted / metrics.eligibleLeads) * 100)}% |\n`;
-    md += `| └─ Booking Abandoned | ${metrics.bookingAbandoned} | ${Math.round((metrics.bookingAbandoned / metrics.totalCalls) * 100)}% | ${Math.round((metrics.bookingAbandoned / metrics.eligibleLeads) * 100)}% |\n`;
-    md += `| └─ Booking Transferred | ${metrics.bookingTransferred} | ${Math.round((metrics.bookingTransferred / metrics.totalCalls) * 100)}% | ${Math.round((metrics.bookingTransferred / metrics.eligibleLeads) * 100)}% |\n\n`;
-
-    // Hangup Analysis
-    md += `### Hangup Engagement Analysis\n\n`;
-    md += `| Engagement Level | Count | % of Total Hangups | Follow-Up Priority |\n`;
-    md += `|------------------|-------|-------------------|-------------------|\n`;
-    md += `| High-Value | ${metrics.hangupHighValue} | ${metrics.hangupTotal > 0 ? Math.round((metrics.hangupHighValue / metrics.hangupTotal) * 100) : 0}% | 🔥 MEDIUM PRIORITY |\n`;
-    md += `| Moderate | ${metrics.hangupModerate} | ${metrics.hangupTotal > 0 ? Math.round((metrics.hangupModerate / metrics.hangupTotal) * 100) : 0}% | ⚠️ LOW PRIORITY |\n`;
-    md += `| Low-Value | ${metrics.hangupLowValue} | ${metrics.hangupTotal > 0 ? Math.round((metrics.hangupLowValue / metrics.hangupTotal) * 100) : 0}% | ✅ Skip Callbacks |\n`;
-    md += `| **Total** | **${metrics.hangupTotal}** | **100%** | - |\n\n`;
-
-    // Transfer Analysis
-    md += `### Transfer Reason Analysis\n\n`;
-    md += `| Reason | Count | % of Transfers | Notes |\n`;
-    md += `|--------|-------|----------------|-------|\n`;
-    const transferReasonCounts = metrics.transferReasons || {};
-    const configuredReasons = Object.keys(config.client.transferReasons || {});
-    const orderedReasons = configuredReasons.length > 0
-        ? configuredReasons.filter(reason => transferReasonCounts[reason] !== undefined)
-        : Object.keys(transferReasonCounts);
-    const extraReasons = Object.keys(transferReasonCounts).filter(reason => !orderedReasons.includes(reason));
-    const reasonList = [...orderedReasons, ...extraReasons];
-
-    if (reasonList.length === 0) {
-        md += `| _No transfer reasons recorded_ | 0 | 0% | - |\n`;
+    // Transfer reasons (routed only)
+    md += `## Transfer Breakdown by Reason (Routed Only)\n\n`;
+    md += `| Reason | Count | % of Routed |\n`;
+    md += `|--------|-------|-------------|\n`;
+    const routedTotal = metrics.routedCalls;
+    if (routedTotal === 0) {
+        md += `| No routed calls | 0 | 0% |\n`;
     } else {
-        for (const reason of reasonList) {
-            const count = transferReasonCounts[reason] || 0;
-            const percent = metrics.transferred > 0 ? Math.round((count / metrics.transferred) * 100) : 0;
-            md += `| ${formatTransferReasonLabel(reason)} | ${count} | ${percent}% | ${getTransferReasonNote(reason, config)} |\n`;
+        for (const [reason, count] of Object.entries(metrics.transferReasons)) {
+            const pct = ((count / routedTotal) * 100).toFixed(1);
+            md += `| ${reason} | ${count} | ${pct}% |\n`;
         }
     }
-    md += `| **Total** | **${metrics.transferred}** | **100%** | - |\n\n`;
 
-    // Efficiency Metrics
-    md += `### Efficiency Metrics\n\n`;
-    md += `**Average Call Duration by Outcome:**\n\n`;
-    md += `| Outcome | Avg Duration | Notes |\n`;
-    md += `|---------|--------------|-------|\n`;
-    md += `| Booking Completed | ${formatDuration(metrics.avgDurationByCategory['booking-completed'])} | Optimal: 3-5 min |\n`;
-    md += `| Booking Abandoned | ${formatDuration(metrics.avgDurationByCategory['booking-abandoned'])} | Compare to completed |\n`;
-    md += `| Booking Transferred | ${formatDuration(metrics.avgDurationByCategory['booking-transferred'])} | - |\n`;
-    md += `| Transferred | ${formatDuration(metrics.avgDurationByCategory['transferred'])} | - |\n`;
-    md += `| Spam | ${formatDuration(metrics.avgDurationByCategory['spam'])} | Fast detection = cost savings |\n`;
-    md += `| Hangup | ${formatDuration(metrics.avgDurationByCategory['hangup'])} | Quick qualification |\n\n`;
+    md += `\n---\n\n`;
 
-    // Add Week-over-Week duration commentary
-    if (previousMetrics && previousMetrics.avgDurationByCategory) {
-        md += `**Average Duration Changes (Week-over-Week):**\n`;
+    // Top 10 not-routed call summaries (week)
+    md += `## Top 10 Not-Routed Call Summaries (Week)\n\n`;
+    md += `| Date | Time | Duration | Ended Reason | Summary |\n`;
+    md += `|------|------|----------|--------------|---------|\n`;
+    const topNotRouted = [...weekCalls]
+        .map(c => {
+            const transferIntent = getTransferIntent(c);
+            const transferAttempted = Boolean(transferIntent);
+            const notRouted = !transferAttempted && (c.endedReason === 'customer-ended-call' || c.endedReason === 'assistant-ended-call');
+            const duration = getCallDuration(c);
+            return { ...c, _notRouted: notRouted, _duration: duration };
+        })
+        .filter(c => c._notRouted)
+        .sort((a, b) => (b._duration || 0) - (a._duration || 0))
+        .slice(0, 10);
 
-        const categories = [
-            { key: 'booking-completed', label: 'Booking Completed' },
-            { key: 'booking-abandoned', label: 'Booking Abandoned' },
-            { key: 'spam', label: 'Spam Detection' },
-            { key: 'transferred', label: 'Transfers' }
-        ];
-
-        for (const cat of categories) {
-            const current = metrics.avgDurationByCategory[cat.key];
-            const previous = previousMetrics.avgDurationByCategory[cat.key];
-
-            if (current > 0 && previous > 0) {
-                const diff = current - previous;
-                const absDiff = Math.abs(diff);
-                let arrow = '↔';
-                let note = 'Stable performance';
-
-                if (diff > 10) {
-                    arrow = '↑';
-                    if (cat.key === 'booking-abandoned') {
-                        note = '⚠️ Taking longer, may indicate confusion or friction';
-                    } else if (cat.key === 'spam') {
-                        note = '⚠️ Slower detection';
-                    } else {
-                        note = 'Duration increased';
-                    }
-                } else if (diff < -10) {
-                    arrow = '↓';
-                    if (cat.key === 'booking-completed') {
-                        note = '✅ Improved efficiency';
-                    } else if (cat.key === 'spam') {
-                        note = '✅ Faster identification';
-                    } else {
-                        note = '✅ Improved speed';
-                    }
-                }
-
-                md += `- ${cat.label}: ${formatDuration(current)} (${arrow} ${absDiff}s from last week) - ${note}\n`;
-            }
-        }
-
-        md += `\n**Key Insights:**\n`;
-
-        // Overall trend
-        const bookingDiff = metrics.avgDurationByCategory['booking-completed'] - previousMetrics.avgDurationByCategory['booking-completed'];
-        if (bookingDiff < -10) {
-            md += `- Overall call handling is becoming more efficient (${Math.abs(bookingDiff)}s faster on bookings)\n`;
-        } else if (bookingDiff > 10) {
-            md += `- Booking calls taking longer (${bookingDiff}s increase) - investigate for potential issues\n`;
-        }
-
-        // Abandoned bookings trend
-        const abandonedDiff = metrics.avgDurationByCategory['booking-abandoned'] - previousMetrics.avgDurationByCategory['booking-abandoned'];
-        if (abandonedDiff > 15) {
-            md += `- Booking abandonment duration increased significantly (${abandonedDiff}s) - suggests possible friction in booking flow\n`;
-        }
-
-        md += `\n`;
-    }
-
-    md += `**Email Capture Quality:**\n`;
-    md += `- Overall capture rate: ${metrics.emailCaptureRate}% (${metrics.emailsCaptured} of ${metrics.totalCalls} calls)\n`;
-    md += `- Target: ${config.report.targets.emailCaptureRate}%\n\n`;
-
-    md += `---\n\n`;
-
-    // Revenue Placeholder Section
-    md += `## Revenue Performance (Lagging Metrics)\n\n`;
-    md += `_This section tracks conversion from bookings → visits → projects. Update config/revenue.json monthly._\n\n`;
-
-    const monthData = revenueData[monthKey] || {};
-
-    md += `### Month-to-Date Performance\n\n`;
-    md += `| Month | Bookings (${aiName}) | Sales Visits | Visits → Projects | Avg Project Value | Total Revenue |\n`;
-    md += `|-------|-----------------|--------------|-------------------|-------------------|---------------|\n`;
-
-    if (monthData.bookingsGenerated !== null && monthData.bookingsGenerated !== undefined) {
-        const visits = monthData.salesVisits || '_[pending]_';
-        const projects = monthData.convertedVisits || '_[pending]_';
-        const avgValue = monthData.avgProjectValue ? `$${monthData.avgProjectValue.toLocaleString()}` : '_[pending]_';
-        const revenue = monthData.totalRevenue ? `$${monthData.totalRevenue.toLocaleString()}` : '_[pending]_';
-        md += `| ${monthKey} | ${monthData.bookingsGenerated} | ${visits} | ${projects} | ${avgValue} | ${revenue} |\n`;
+    if (topNotRouted.length === 0) {
+        md += `| No not-routed calls | - | - | - | - |\n`;
     } else {
-        md += `| ${monthKey} | _[pending]_ | _[pending]_ | _[pending]_ | _[pending]_ | _[pending]_ |\n`;
+        for (const call of topNotRouted) {
+            const dateStr = call.createdAt ? format(toZonedTime(new Date(call.createdAt), TIME_ZONE), 'yyyy-MM-dd') : 'N/A';
+            const timeStr = call.createdAt ? format(toZonedTime(new Date(call.createdAt), TIME_ZONE), 'h:mm a') : 'N/A';
+            const summary = cleanSummaryText(call.summary || '');
+            md += `| ${dateStr} | ${timeStr} | ${formatDuration(call._duration || 0)} | ${call.endedReason || 'unknown'} | ${summary} |\n`;
+        }
     }
 
-    md += `\n_**Note:** This data has a 30-60 day lag. Update config/revenue.json after month closes._\n\n`;
-
-    md += `---\n\n`;
-
-    // Key Metrics Definitions
-    md += `## Appendix: Metrics Definitions\n\n`;
-    md += `**Categories:**\n`;
-    md += `- **booking-completed**: Customer successfully completed appointment booking\n`;
-    md += `- **booking-abandoned**: Customer started booking but did not complete (HIGH-VALUE RECOVERY)\n`;
-    md += `- **booking-transferred**: Booking attempt transferred to human\n`;
-    md += `- **transferred**: Call transferred without booking attempt\n`;
-    md += `- **spam**: Spam, robocalls, wrong numbers\n`;
-    md += `- **hangup**: Customer hung up (categorized by engagement level)\n\n`;
-
-    md += `**Key Formulas:**\n`;
-    md += `- **Eligible Leads** = Booking Completed + Booking Abandoned + Booking Transferred\n`;
-    md += `- **Success Rate** = (Booking Completed ÷ Eligible Leads) × 100%\n`;
-    md += `- **Email Capture Rate** = (Emails Captured ÷ Total Calls) × 100%\n`;
-    md += `- **ROI** = (Revenue - ${aiName} Cost) ÷ ${aiName} Cost × 100%\n\n`;
+    md += `\n---\n\n`;
 
     // Save Markdown
     const mdPath = path.join(config.paths.reportsDir, `weekly_report_${weekKey}.md`);
@@ -960,13 +826,11 @@ async function generateWeeklyReport(weekKey, options = {}) {
     fs.writeFileSync(htmlPath, html, 'utf8');
     console.log(`✅ HTML report saved: ${htmlPath}`);
 
-    console.log(`✅ CSV leads export saved: ${leadsReport.csvPath}`);
     console.log(`\n=== Weekly Report Complete ===`);
     console.log(`Week: ${weekKey}`);
     console.log(`Total Calls: ${metrics.totalCalls}`);
-    console.log(`Eligible Leads: ${metrics.eligibleLeads}`);
-    console.log(`Success Rate: ${metrics.successRate}%`);
-    console.log(`High-Priority Leads: ${leadsReport.totalLeads}`);
+    console.log(`Routed Calls: ${metrics.routedCalls} (${metrics.routingRate}%)`);
+    console.log(`Transfer Attempted: ${metrics.transferAttempted} (${metrics.transferAttemptRate}%)`);
 }
 
 // Convert Markdown to HTML
