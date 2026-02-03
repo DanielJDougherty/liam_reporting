@@ -232,10 +232,10 @@ function cleanSummaryText(summary) {
     cleaned = cleaned.replace(/^\*{0,2}summary:?\*{0,2}\s*/i, '');
     // Remove leading ** if leftover
     cleaned = cleaned.replace(/^\*{1,2}\s*/, '');
-    if (cleaned.length <= 100) return cleaned || 'No summary';
+    if (cleaned.length <= 300) return cleaned || 'No summary';
     // Truncate at word boundary + ellipsis
-    const truncated = cleaned.slice(0, 100).replace(/\s+\S*$/, '');
-    return (truncated || cleaned.slice(0, 100)) + '...';
+    const truncated = cleaned.slice(0, 300).replace(/\s+\S*$/, '');
+    return (truncated || cleaned.slice(0, 300)) + '...';
 }
 
 // Process and enrich calls
