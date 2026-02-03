@@ -1,0 +1,28 @@
+{
+  "name": "vapi-reporting-framework",
+  "version": "1.0.0",
+  "description": "Multi-client Vapi call reporting framework with GPT-powered analysis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "vapi",
+    "reporting",
+    "ai",
+    "voice",
+    "analytics"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/identity": "^4.13.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "dotenv": "^16.3.1",
+    "isomorphic-fetch": "^3.0.0",
+    "marked": "^11.0.0",
+    "openai": "^6.9.1"
+  }
+}

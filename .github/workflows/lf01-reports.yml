@@ -1,0 +1,45 @@
+name: "Leaf (LF01) Reports"
+
+on:
+  schedule:
+    # DOD report at 5am ET (10:00 UTC)
+    - cron: '0 10 * * *'
+    # Intraday at 11am ET (16:00 UTC)
+    - cron: '0 16 * * *'
+    # Intraday at 3pm ET (20:00 UTC)
+    - cron: '0 20 * * *'
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Report type'
+        required: true
+        default: 'intraday'
+        type: choice
+        options:
+          - dod
+          - intraday
+      target_date:
+        description: 'Target date (YYYY-MM-DD, optional)'
+        required: false
+        type: string
+
+jobs:
+  report:
+    uses: ./.github/workflows/_report-engine.yml
+    with:
+      client: lf01
+      report_type: >-
+        ${{
+          github.event_name == 'workflow_dispatch'
+            && github.event.inputs.report_type
+            || (github.event.schedule == '0 10 * * *' && 'dod' || 'intraday')
+        }}
+      target_date: ${{ github.event.inputs.target_date || '' }}
+    secrets:
+      VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}

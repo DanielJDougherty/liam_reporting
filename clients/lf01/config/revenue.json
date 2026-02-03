@@ -1,0 +1,12 @@
+{
+  "_note": "This file tracks lagging business metrics. Update monthly after sales data is available.",
+  "_instructions": "Fill in actual values once they are known. Leave as null until data is available.",
+  "example": {
+    "bookingsGenerated": null,
+    "salesVisits": null,
+    "convertedVisits": null,
+    "avgProjectValue": null,
+    "totalRevenue": null,
+    "notes": "Example template - replace with actual monthly data"
+  }
+}

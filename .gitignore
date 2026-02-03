@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Environment variables (local dev only)
+.env
+
+# Per-client data directories (regenerated at runtime)
+clients/*/data/raw/
+clients/*/data/enriched/
+clients/*/data/recordings/
+clients/*/data/openai_analysis/
+clients/*/data/logs/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,72 @@
+name: Report Engine
+
+on:
+  workflow_call:
+    inputs:
+      client:
+        required: true
+        type: string
+        description: 'Client directory name (e.g., lf01)'
+      report_type:
+        required: true
+        type: string
+        description: 'Report type: dod, intraday'
+      target_date:
+        required: false
+        type: string
+        default: ''
+    secrets:
+      VAPI_API_KEY:
+        required: true
+      OPENAI_API_KEY:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run scheduled report
+        env:
+          VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          DATE_FLAG=""
+          if [ -n "${{ inputs.target_date }}" ]; then
+            DATE_FLAG="--date=${{ inputs.target_date }}"
+          fi
+          echo "Running ${{ inputs.report_type }} report for ${{ inputs.client }}..."
+          node scripts/scheduled-report.js \
+            --client=${{ inputs.client }} \
+            --type=${{ inputs.report_type }} \
+            $DATE_FLAG
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ inputs.client }}-${{ inputs.report_type }}-${{ github.run_id }}
+          path: clients/${{ inputs.client }}/data/reports/
+          retention-days: 30

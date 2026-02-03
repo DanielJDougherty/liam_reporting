@@ -1,0 +1,19 @@
+{
+  "name": "leaf-vapi-reporting",
+  "version": "1.0.0",
+  "description": "Vapi call reporting for Leaf",
+  "scripts": {
+    "fetch": "node ../../scripts/fetch.js --client=lf01",
+    "enrich": "node ../../scripts/enrich.js --client=lf01",
+    "report:intraday": "node ../../scripts/report-intraday.js --client=lf01",
+    "report:daily": "node ../../scripts/report-day-over-day.js --client=lf01",
+    "report:weekly": "node ../../scripts/report-weekly.js --client=lf01",
+    "analyze:hangups": "node ../../scripts/analyze-hangups.js --client=lf01",
+    "download:recordings": "node ../../scripts/download-recordings.js --client=lf01",
+    "scheduled:dod": "node ../../scripts/scheduled-report.js --client=lf01 --type=dod",
+    "scheduled:intraday": "node ../../scripts/scheduled-report.js --client=lf01 --type=intraday",
+    "test:email": "node ../../scripts/scheduled-report.js --client=lf01 --test-email"
+  },
+  "author": "",
+  "license": "ISC"
+}

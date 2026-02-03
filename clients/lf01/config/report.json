@@ -1,0 +1,23 @@
+{
+  "pricing": {
+    "blakeCostPerMinute": 0.79,
+    "humanHourlyRate": 45,
+    "humanBenefitsMultiplier": 1.3
+  },
+  "targets": {
+    "bookingSuccessRate": 45,
+    "emailCaptureRate": 85,
+    "spamDetectionSpeed": 20,
+    "avgBookingDuration": 270,
+    "containmentRate": 80,
+    "highValueEngagement": 70
+  },
+  "timeRange": {
+    "rollingWeeks": 4,
+    "allowCustomRange": true
+  },
+  "heatmap": {
+    "intervalMinutes": 30,
+    "showWeekends": true
+  }
+}
