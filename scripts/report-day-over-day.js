@@ -1004,8 +1004,9 @@ async function generateDayOverDayReport() {
 
     // Generate companion _meta.json for email sender
     const reportDateDisplay = targetDate || (todayRow ? todayRow.date : format(now, 'yyyy-MM-dd'));
-    const periodTotalCalls = dailyRows.reduce((sum, r) => sum + r.totalCalls, 0);
-    const periodRouted = dailyRows.reduce((sum, r) => sum + r.routedCalls, 0);
+    const periodRows = targetDate ? dailyRows.filter(r => r.date <= targetDate) : dailyRows;
+    const periodTotalCalls = periodRows.reduce((sum, r) => sum + r.totalCalls, 0);
+    const periodRouted = periodRows.reduce((sum, r) => sum + r.routedCalls, 0);
     const periodRoutingRate = periodTotalCalls > 0 ? ((periodRouted / periodTotalCalls) * 100).toFixed(2) : '0';
 
     const meta = {
