@@ -81,7 +81,7 @@ function validateReportDate(reportFile, targetDate) {
     const [year, month, day] = targetDate.split('-');
     const targetDateMMDDYYYY = `${month}${day}${year}`;
 
-    if (!reportFile.includes(`End${targetDateMMDDYYYY}`) && !reportFile.includes(targetDate)) {
+    if (!reportFile.includes(`Start${targetDateMMDDYYYY}`) && !reportFile.includes(`End${targetDateMMDDYYYY}`) && !reportFile.includes(targetDate)) {
         throw new Error(
             `Found report does not match target date ${targetDate}. ` +
             `Report found: ${path.basename(reportFile)}. ` +
