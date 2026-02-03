@@ -126,7 +126,7 @@ async function runDODReport(config, clientName, targetDate) {
     if (!reportSuccess) throw new Error('Report generation failed');
 
     // Step 4: Find the report
-    const reportFile = findLatestReport(config.paths.reportsDir, 'day_over_day');
+    const reportFile = findLatestReport(config.paths.reportsDir, 'EngAgent_DODReport');
     if (!reportFile) {
         throw new Error('Could not find generated DOD report');
     }
