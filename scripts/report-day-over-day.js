@@ -23,6 +23,9 @@ if (!clientArg) {
 
 const clientName = clientArg.split('=')[1];
 
+const dateArg = args.find(arg => arg.startsWith('--date='));
+const targetDate = dateArg ? dateArg.split('=')[1] : null;
+
 // Load client configuration
 const config = loadClientConfig(clientName);
 const TIME_ZONE = config.client.timezone || 'America/New_York';
@@ -600,7 +603,9 @@ async function generateDayOverDayReport() {
     // Calculate day-of-week averages for comparison
     const dayOfWeekAverages = calculateDayOfWeekAverages(dailyRows, currentWeek);
 
-    const todayRow = dailyRows[dailyRows.length - 1];
+    const todayRow = targetDate
+        ? dailyRows.find(r => r.date === targetDate) || dailyRows[dailyRows.length - 1]
+        : dailyRows[dailyRows.length - 1];
     // Build markdown
     const aiName = config.client.aiAssistantName;
     let md = `# ${aiName} Day-Over-Day Call Summary\n\n`;
@@ -988,7 +993,8 @@ async function generateDayOverDayReport() {
 
     // Format date range for filename (MMDDYYYY)
     const startParts = firstRow ? firstRow.date.split('-') : ['0000', '00', '00'];
-    const endParts = todayRow ? todayRow.date.split('-') : ['0000', '00', '00'];
+    const endDate = targetDate || (todayRow ? todayRow.date : null);
+    const endParts = endDate ? endDate.split('-') : ['0000', '00', '00'];
     const startFormatted = `${startParts[1]}${startParts[2]}${startParts[0]}`;
     const endFormatted = `${endParts[1]}${endParts[2]}${endParts[0]}`;
 
@@ -997,7 +1003,7 @@ async function generateDayOverDayReport() {
     fs.writeFileSync(outPath, md);
 
     // Generate companion _meta.json for email sender
-    const reportDateDisplay = todayRow ? todayRow.date : format(now, 'yyyy-MM-dd');
+    const reportDateDisplay = targetDate || (todayRow ? todayRow.date : format(now, 'yyyy-MM-dd'));
     const periodTotalCalls = dailyRows.reduce((sum, r) => sum + r.totalCalls, 0);
     const periodRouted = dailyRows.reduce((sum, r) => sum + r.routedCalls, 0);
     const periodRoutingRate = periodTotalCalls > 0 ? ((periodRouted / periodTotalCalls) * 100).toFixed(2) : '0';
