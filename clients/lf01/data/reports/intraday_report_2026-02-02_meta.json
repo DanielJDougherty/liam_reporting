@@ -1,0 +1,10 @@
+{
+  "titleLine": "Intraday Status - 2026-02-02 (7:14 AM)",
+  "generatedTs": "2/3/2026, 7:15:02 AM",
+  "dateRange": "2026-02-02",
+  "reportPath": "C:\\Users\\danie\\OneDrive\\Documents\\Codebase\\Liam\\liam_reporting\\clients\\lf01\\data\\reports\\intraday_report_2026-02-02.md",
+  "callsToday": "24",
+  "todaySuccessRate": "58.3%",
+  "callsInPeriod": "24",
+  "periodSuccessRate": "58.3%"
+}

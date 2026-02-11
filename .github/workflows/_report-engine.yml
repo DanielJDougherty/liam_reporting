@@ -63,6 +63,14 @@ jobs:
             --type=${{ inputs.report_type }} \
             $DATE_FLAG
 
+      - name: Commit data back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add clients/${{ inputs.client }}/data/raw/ clients/${{ inputs.client }}/data/enriched/ clients/${{ inputs.client }}/data/metadata.json
+          git diff --cached --quiet || git commit -m "data: ${{ inputs.client }} ${{ inputs.report_type }} $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
+
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         if: always()

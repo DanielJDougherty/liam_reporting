@@ -1,0 +1,54 @@
+{
+  "019c09de-4fb0-7ff2-9583-a71271bb04de": {
+    "callId": "019c09de-4fb0-7ff2-9583-a71271bb04de",
+    "enrichedAt": "2026-02-11T02:12:48.656Z",
+    "createdAt": "2026-01-29T13:08:10.288Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "general",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c09dd-959d-7dda-9d6e-e9efdbf3b5eb": {
+    "callId": "019c09dd-959d-7dda-9d6e-e9efdbf3b5eb",
+    "enrichedAt": "2026-02-11T02:12:48.656Z",
+    "createdAt": "2026-01-29T13:07:22.653Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "service-repair",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c09dd-00ba-7eed-b442-8904cf7596ee": {
+    "callId": "019c09dd-00ba-7eed-b442-8904cf7596ee",
+    "enrichedAt": "2026-02-11T02:12:48.656Z",
+    "createdAt": "2026-01-29T13:06:44.538Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "estimate-scheduling",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c09dc-7b31-711e-b351-60e83ea2484b": {
+    "callId": "019c09dc-7b31-711e-b351-60e83ea2484b",
+    "enrichedAt": "2026-02-11T02:12:48.656Z",
+    "createdAt": "2026-01-29T13:06:10.353Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "service-repair",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  }
+}

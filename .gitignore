@@ -4,9 +4,8 @@ node_modules/
 # Environment variables (local dev only)
 .env
 
-# Per-client data directories (regenerated at runtime)
-clients/*/data/raw/
-clients/*/data/enriched/
+# Per-client data directories
+# raw/ and enriched/ are persisted so weekly/monthly aggregations have complete data
 clients/*/data/recordings/
 clients/*/data/openai_analysis/
 clients/*/data/logs/

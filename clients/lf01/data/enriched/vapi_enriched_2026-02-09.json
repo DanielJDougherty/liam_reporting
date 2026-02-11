@@ -1,0 +1,418 @@
+{
+  "019c4649-087b-744c-9bf0-91b05fb1e36c": {
+    "callId": "019c4649-087b-744c-9bf0-91b05fb1e36c",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-10T06:41:57.371Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c452f-3176-7773-8e5f-0aed44f94a3a": {
+    "callId": "019c452f-3176-7773-8e5f-0aed44f94a3a",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-10T01:34:06.710Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "moderate",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c44f4-d639-7887-bc4d-bc01e124deaa": {
+    "callId": "019c44f4-d639-7887-bc4d-bc01e124deaa",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-10T00:30:22.265Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "other",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c44b2-d43f-799a-96f7-0828aefc43ec": {
+    "callId": "019c44b2-d43f-799a-96f7-0828aefc43ec",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T23:18:16.383Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4498-9926-7557-b96b-743877e62511": {
+    "callId": "019c4498-9926-7557-b96b-743877e62511",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T22:49:37.318Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "moderate",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c447b-14cc-7dd1-86d2-24e72859016a": {
+    "callId": "019c447b-14cc-7dd1-86d2-24e72859016a",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T22:17:22.892Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "other",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4465-43f1-7334-9fcf-9690d5d11cf7": {
+    "callId": "019c4465-43f1-7334-9fcf-9690d5d11cf7",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T21:53:33.169Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "other",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4456-d20a-744c-8f33-21ab5a0c2e72": {
+    "callId": "019c4456-d20a-744c-8f33-21ab5a0c2e72",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T21:37:46.506Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "moderate",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c443a-e446-7331-9d1a-92e782cfe977": {
+    "callId": "019c443a-e446-7331-9d1a-92e782cfe977",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T21:07:16.166Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "moderate",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4432-4d16-733f-b094-2993b062f079": {
+    "callId": "019c4432-4d16-733f-b094-2993b062f079",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T20:57:53.174Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "other",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4425-3f59-7ccc-a6cb-5326808a49dc": {
+    "callId": "019c4425-3f59-7ccc-a6cb-5326808a49dc",
+    "enrichedAt": "2026-02-11T02:28:52.261Z",
+    "createdAt": "2026-02-09T20:43:37.689Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "other",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4413-5389-7550-ba63-d7ff8c723106": {
+    "callId": "019c4413-5389-7550-ba63-d7ff8c723106",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T20:24:03.210Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "service-repair",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4407-70c1-7550-ba48-d2de65ed70f7": {
+    "callId": "019c4407-70c1-7550-ba48-d2de65ed70f7",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T20:11:04.257Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43fd-b58f-7557-b823-e5e4451ab761": {
+    "callId": "019c43fd-b58f-7557-b823-e5e4451ab761",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T20:00:26.511Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43ee-fb48-7883-82cf-6f59c6850036": {
+    "callId": "019c43ee-fb48-7883-82cf-6f59c6850036",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T19:44:21.320Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "warranty-registration",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43dd-a4a7-7aa7-ba1b-4b7482f67f96": {
+    "callId": "019c43dd-a4a7-7aa7-ba1b-4b7482f67f96",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T19:25:25.031Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43cf-4a02-7ee0-b6cc-7f25c427f711": {
+    "callId": "019c43cf-4a02-7ee0-b6cc-7f25c427f711",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T19:09:44.322Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "general",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43bc-d1fe-744c-981d-eafd0ebd2303": {
+    "callId": "019c43bc-d1fe-744c-981d-eafd0ebd2303",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T18:49:33.950Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c43ae-69fa-7ee0-b692-0e01b93ce50a": {
+    "callId": "019c43ae-69fa-7ee0-b692-0e01b93ce50a",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T18:33:49.818Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4398-f696-7113-927b-1769b369c1d6": {
+    "callId": "019c4398-f696-7113-927b-1769b369c1d6",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T18:10:24.022Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c437e-8843-7773-a75c-0ed3259f0306": {
+    "callId": "019c437e-8843-7773-a75c-0ed3259f0306",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T17:41:31.843Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "estimate-scheduling",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c436e-8bc4-7ff4-a2a5-5ead449f4153": {
+    "callId": "019c436e-8bc4-7ff4-a2a5-5ead449f4153",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T17:24:04.164Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c435d-77ed-7cc7-ba53-187b44612ccf": {
+    "callId": "019c435d-77ed-7cc7-ba53-187b44612ccf",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T17:05:24.973Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "estimate-scheduling",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4347-0e1a-7773-a6df-f0f28691d7ca": {
+    "callId": "019c4347-0e1a-7773-a6df-f0f28691d7ca",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T16:40:56.090Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4336-739d-7334-9d3c-efdd7cdb7e85": {
+    "callId": "019c4336-739d-7334-9d3c-efdd7cdb7e85",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T16:22:47.965Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c432b-79e1-766a-a69a-b6849bc8ee20": {
+    "callId": "019c432b-79e1-766a-a69a-b6849bc8ee20",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T16:10:48.673Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "estimate-scheduling",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c431b-035b-7dd3-a61a-7843ca3f0302": {
+    "callId": "019c431b-035b-7dd3-a61a-7843ca3f0302",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T15:52:49.755Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "spam",
+      "hangupType": null,
+      "transferReason": null,
+      "spamType": "short-call",
+      "bookingStatus": "none"
+    }
+  },
+  "019c4303-d03d-7337-8527-a23fb500f7ae": {
+    "callId": "019c4303-d03d-7337-8527-a23fb500f7ae",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T15:27:29.341Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "service-repair",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c42ed-ac6b-7331-9a4b-42b10f42ab11": {
+    "callId": "019c42ed-ac6b-7331-9a4b-42b10f42ab11",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T15:03:18.379Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c42d7-4dc5-7227-b40a-f2894503337e": {
+    "callId": "019c42d7-4dc5-7227-b40a-f2894503337e",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T14:38:52.357Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "spam",
+      "hangupType": null,
+      "transferReason": null,
+      "spamType": "short-call",
+      "bookingStatus": "none"
+    }
+  },
+  "019c42b5-4bae-7337-849f-ac77ab82a772": {
+    "callId": "019c42b5-4bae-7337-849f-ac77ab82a772",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T14:01:43.598Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c4295-3c3e-7cc2-9d62-6fd0715880ea": {
+    "callId": "019c4295-3c3e-7cc2-9d62-6fd0715880ea",
+    "enrichedAt": "2026-02-11T02:32:15.027Z",
+    "createdAt": "2026-02-09T13:26:42.494Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "spam",
+      "hangupType": null,
+      "transferReason": null,
+      "spamType": "short-call",
+      "bookingStatus": "none"
+    }
+  }
+}

@@ -6,7 +6,9 @@
  * This script classifies calls using GPT with client-specific business context.
  */
 
+// Load client-specific .env first, then fall back to root .env
 require('dotenv').config({ path: require('path').join(__dirname, '../clients', process.argv.find(a => a.startsWith('--client='))?.split('=')[1] || '', '.env') });
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai');

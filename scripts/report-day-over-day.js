@@ -225,11 +225,26 @@ function processCalls(calls, enrichmentMap) {
             spamType = c.spamType || null;
         }
 
-        const routed = call.endedReason === 'assistant-forwarded-call';
         const transferAttempted = Boolean(transferIntent);
         const intentIdentified = Boolean(transferIntent || transferReason);
-        const notRouted = !transferAttempted && (call.endedReason === 'customer-ended-call' || call.endedReason === 'assistant-ended-call');
-        const hangupBeforeRoute = transferAttempted && !routed && call.endedReason === 'customer-ended-call';
+
+        // Determine routing status — exactly ONE per call, exhaustive partition
+        let routingStatus;
+        if (call.endedReason === 'assistant-forwarded-call') {
+            routingStatus = 'routed';
+        } else if (transferAttempted && call.endedReason === 'customer-ended-call') {
+            routingStatus = 'hangup-before-route';
+        } else if (spamLikely) {
+            routingStatus = 'spam-likely';
+        } else if (category === 'spam') {
+            routingStatus = 'spam';
+        } else {
+            routingStatus = 'not-routed';
+        }
+
+        const routed = routingStatus === 'routed';
+        const notRouted = routingStatus === 'not-routed';
+        const hangupBeforeRoute = routingStatus === 'hangup-before-route';
 
         return {
             callId: call.id,
@@ -242,6 +257,7 @@ function processCalls(calls, enrichmentMap) {
             email,
             duration,
             transferIntent,
+            routingStatus,
             routed,
             transferAttempted,
             intentIdentified,
@@ -257,13 +273,19 @@ function computeMetrics(calls, enrichmentMap) {
     const processedCalls = processCalls(calls, enrichmentMap);
     const totalCalls = processedCalls.length;
 
-    const spamCalls = processedCalls.filter(c => c.category === 'spam').length;
-    const spamLikelyCalls = processedCalls.filter(c => c.spamLikely).length;
+    const spamCalls = processedCalls.filter(c => c.routingStatus === 'spam').length;
+    const spamLikelyCalls = processedCalls.filter(c => c.routingStatus === 'spam-likely').length;
     const intentIdentified = processedCalls.filter(c => c.intentIdentified).length;
     const transferAttempted = processedCalls.filter(c => c.transferAttempted).length;
-    const routedCalls = processedCalls.filter(c => c.routed).length;
-    const notRoutedCalls = processedCalls.filter(c => c.notRouted).length;
-    const hangupBeforeRoute = processedCalls.filter(c => c.hangupBeforeRoute).length;
+    const routedCalls = processedCalls.filter(c => c.routingStatus === 'routed').length;
+    const notRoutedCalls = processedCalls.filter(c => c.routingStatus === 'not-routed').length;
+    const hangupBeforeRoute = processedCalls.filter(c => c.routingStatus === 'hangup-before-route').length;
+
+    // Sanity check: all calls must be in exactly one routing bucket
+    const accountedFor = routedCalls + notRoutedCalls + hangupBeforeRoute + spamLikelyCalls + spamCalls;
+    if (accountedFor !== totalCalls) {
+        console.warn(`WARNING: Routing categories (${accountedFor}) != Total Calls (${totalCalls}). ${totalCalls - accountedFor} calls uncategorized.`);
+    }
 
     const notRoutedDurations = processedCalls.filter(c => c.notRouted && c.duration > 0).map(c => c.duration);
     const routedDurations = processedCalls.filter(c => c.routed && c.duration > 0).map(c => c.duration);
@@ -351,7 +373,7 @@ function hasCustomerSpeech(call) {
 }
 
 function isSpamLikelyShortNoSpeech(call, durationSeconds) {
-    return durationSeconds > 0 && durationSeconds <= 10 && !hasCustomerSpeech(call);
+    return durationSeconds <= 10 && !hasCustomerSpeech(call);
 }
 
 function cleanSummaryText(summary) {

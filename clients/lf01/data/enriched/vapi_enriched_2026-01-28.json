@@ -1,0 +1,15 @@
+{
+  "019c04f5-8c5c-722e-9a91-2e4e7f798389": {
+    "callId": "019c04f5-8c5c-722e-9a91-2e4e7f798389",
+    "enrichedAt": "2026-02-11T02:12:48.655Z",
+    "createdAt": "2026-01-28T14:15:27.068Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  }
+}

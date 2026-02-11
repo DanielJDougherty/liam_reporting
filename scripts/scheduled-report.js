@@ -100,16 +100,16 @@ async function runDODReport(config, clientName, targetDate) {
     console.log(`  DOD Report for ${config.client.name} - ${targetDate}`);
     console.log(`========================================`);
 
-    // Step 1: Fetch data
+    // Step 1: Fetch data (8 days to ensure complete current week for weekly trends)
     const fetchSuccess = runCommand(
         'Fetching Vapi data',
-        `node scripts/fetch.js --client=${clientName} --days=2`,
+        `node scripts/fetch.js --client=${clientName} --days=8`,
         rootDir
     );
     if (!fetchSuccess) throw new Error('Fetch failed');
 
     // Step 2: Enrich data
-    const startDate = format(subDays(new Date(targetDate), 7), 'yyyy-MM-dd');
+    const startDate = format(subDays(new Date(targetDate), 8), 'yyyy-MM-dd');
     const enrichSuccess = runCommand(
         'Enriching call data',
         `node scripts/enrich.js --client=${clientName} --start=${startDate} --end=${targetDate} --force`,

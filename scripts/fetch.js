@@ -140,14 +140,18 @@ function httpsRequest(pathStr) {
 // Fetch calls with pagination
 async function fetchCalls(startDate, endDate) {
     const allCalls = [];
+    const callIds = new Set();
     let cursor = null;
     let page = 0;
+    const PAGE_LIMIT = 100;
+    // For array responses (no cursor), paginate by shifting the upper bound
+    let currentEndDate = endDate;
 
     do {
         page++;
         console.log(`Fetching page ${page}...`);
 
-        let queryPath = `/call?limit=100&createdAtGe=${startDate.toISOString()}&createdAtLe=${endDate.toISOString()}`;
+        let queryPath = `/call?limit=${PAGE_LIMIT}&createdAtGe=${startDate.toISOString()}&createdAtLe=${currentEndDate.toISOString()}`;
         if (cursor) {
             queryPath += `&cursor=${cursor}`;
         }
@@ -156,13 +160,34 @@ async function fetchCalls(startDate, endDate) {
             const response = await httpsRequest(queryPath);
 
             if (response && Array.isArray(response)) {
-                allCalls.push(...response);
-                console.log(`Received ${response.length} calls`);
-                break; // No pagination info, assume single page
+                // Deduplicate by call ID
+                const newCalls = response.filter(c => !callIds.has(c.id));
+                newCalls.forEach(c => callIds.add(c.id));
+                allCalls.push(...newCalls);
+                console.log(`Received ${response.length} calls (${newCalls.length} new)`);
+
+                // If we got a full page, there are likely more — paginate by shifting the upper bound
+                if (response.length >= PAGE_LIMIT) {
+                    // Find the oldest call's createdAt and use it as the new upper bound
+                    const oldest = response.reduce((min, c) =>
+                        c.createdAt < min.createdAt ? c : min, response[0]);
+                    const newEnd = new Date(oldest.createdAt);
+                    // Avoid infinite loop if upper bound didn't change
+                    if (newEnd.getTime() >= currentEndDate.getTime()) {
+                        console.log('No progress in pagination, stopping');
+                        break;
+                    }
+                    currentEndDate = newEnd;
+                } else {
+                    break; // Got less than a full page, we have all the data
+                }
             } else if (response && response.data) {
-                allCalls.push(...response.data);
+                const newCalls = response.data.filter(c => !callIds.has(c.id));
+                newCalls.forEach(c => callIds.add(c.id));
+                allCalls.push(...newCalls);
                 cursor = response.cursor || null;
                 console.log(`Received ${response.data.length} calls (cursor: ${cursor ? 'yes' : 'no'})`);
+                if (!cursor) break;
             } else {
                 break;
             }
@@ -177,7 +202,7 @@ async function fetchCalls(startDate, endDate) {
             break;
         }
 
-    } while (cursor);
+    } while (true);
 
     console.log(`Total calls fetched: ${allCalls.length}`);
     return allCalls;
