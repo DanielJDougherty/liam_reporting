@@ -403,6 +403,17 @@ function categoryEmoji(category) {
     }
 }
 
+function routingStatusEmoji(routingStatus) {
+    switch (routingStatus) {
+        case 'routed': return '→ transfer';
+        case 'not-routed': return '↩ not-routed';
+        case 'hangup-before-route': return '⚠ hangup';
+        case 'spam': return '✗ spam';
+        case 'spam-likely': return '✗ spam-likely';
+        default: return routingStatus || 'unknown';
+    }
+}
+
 function formatTransferReasonLabel(reason) {
     if (!reason) return 'Unspecified';
     return reason
@@ -444,8 +455,8 @@ function buildDODExecutiveSummary(todayRow, dailyRows, dayOfWeekAverages) {
     const mtdRoutingRate = mtdTotal > 0 ? Math.round((mtdRouted / mtdTotal) * 100) : 0;
 
     const dowAvg = dayOfWeekAverages[todayRow.dayOfWeek];
-    const dowAvgCalls = dowAvg ? dowAvg.totalCalls : null;
-    const dowAvgRouting = dowAvg ? dowAvg.routingRate : null;
+    const dowAvgCalls = (dowAvg && dowAvg.count >= 2) ? dowAvg.totalCalls : null;
+    const dowAvgRouting = (dowAvg && dowAvg.count >= 2) ? dowAvg.routingRate : null;
 
     const notRoutedAvg = formatDuration(todayRow.notRoutedStats.avg);
     const notRoutedP90 = formatDuration(todayRow.notRoutedStats.p90);
@@ -454,7 +465,7 @@ function buildDODExecutiveSummary(todayRow, dailyRows, dayOfWeekAverages) {
         ? 'Call volume is below 20, so directional insights should be interpreted cautiously.'
         : 'Call volume is above 20, giving a reasonable directional read on routing performance.';
 
-    const dowComparison = dowAvg
+    const dowComparison = dowAvgCalls !== null
         ? `Compared to the same weekday average (${dowAvgCalls} calls, ${dowAvgRouting}% routing), yesterday ran at ${totalCalls} calls with ${routingRate}% routing.`
         : 'No prior same‑weekday baseline was available for comparison.';
 
@@ -513,7 +524,14 @@ async function generateDayOverDayReport() {
     const enrichmentMap = loadEnrichments();
     console.log(`Loaded ${enrichmentMap.size} enrichments`);
 
-    const rawFiles = fs.readdirSync(config.paths.rawDir).filter(f => f.startsWith('vapi_calls_') && f.endsWith('.json')).sort();
+    const rawFiles = fs.readdirSync(config.paths.rawDir)
+        .filter(f => f.startsWith('vapi_calls_') && f.endsWith('.json'))
+        .filter(f => {
+            if (!targetDate) return true;
+            const dateStr = f.replace('vapi_calls_', '').replace('.json', '');
+            return dateStr <= targetDate;
+        })
+        .sort();
 
     const dailyRows = [];
     const weeklyMap = new Map(); // key: `${year}-W${week}`
@@ -649,11 +667,11 @@ async function generateDayOverDayReport() {
         let callsVsAvg = '';
         let routingVsAvg = '';
 
-        if (avg) {
+        if (avg && avg.count >= 2) {
             const callsDiff = r.totalCalls - avg.totalCalls;
             const routingDiff = r.routingRate - avg.routingRate;
-            callsVsAvg = callsDiff >= 0 ? `+${callsDiff} ???` : `${callsDiff} ???`;
-            routingVsAvg = routingDiff >= 0 ? `+${routingDiff}% ???` : `${routingDiff}% ???`;
+            callsVsAvg = callsDiff >= 0 ? `+${callsDiff} ▲` : `${callsDiff} ▼`;
+            routingVsAvg = routingDiff >= 0 ? `+${routingDiff}% ▲` : `${routingDiff}% ▼`;
         }
 
         md += `| ${r.date} | ${r.dayName} | ${r.totalCalls} | ${callsVsAvg} | ${r.spamCalls} | ${r.intentIdentified} | ${r.transferAttempted} | ${r.routedCalls} | ${r.routingRate}% | ${routingVsAvg} | ${r.notRoutedCalls} | ${formatDuration(r.notRoutedStats.avg)} | ${formatDuration(r.notRoutedStats.p90)} | ${r.hangupBeforeRoute} | ${r.afterHoursCalls} |\n`;
@@ -671,11 +689,15 @@ async function generateDayOverDayReport() {
 
         if (previousWeek) {
             const callsDiff = agg.totalCalls - previousWeek.totalCalls;
-            const callsPct = previousWeek.totalCalls > 0 ? Math.round((callsDiff / previousWeek.totalCalls) * 100) : 0;
             const routingDiff = agg.routingRate - previousWeek.routingRate;
 
-            callsChange = callsDiff >= 0 ? `+${callsPct}% ???` : `${callsPct}% ???`;
-            routingChange = routingDiff >= 0 ? `+${routingDiff}% ???` : `${routingDiff}% ???`;
+            if (previousWeek.days >= 5) {
+                const callsPct = previousWeek.totalCalls > 0 ? Math.round((callsDiff / previousWeek.totalCalls) * 100) : 0;
+                callsChange = callsPct >= 0 ? `+${callsPct}% ▲` : `${callsPct}% ▼`;
+            } else {
+                callsChange = callsDiff >= 0 ? `+${callsDiff}` : `${callsDiff}`;
+            }
+            routingChange = routingDiff >= 0 ? `+${routingDiff}% ▲` : `${routingDiff}% ▼`;
         }
 
         md += `| ${weekKey} | ${agg.days} | ${agg.totalCalls} | ${callsChange} | ${agg.spamCalls} | ${agg.intentIdentified} | ${agg.transferAttempted} | ${agg.routedCalls} | ${agg.routingRate}% | ${routingChange} | ${agg.notRoutedCalls} | ${formatDuration(agg.notRoutedAvgDuration)} | ${formatDuration(agg.routedAvgDuration)} | ${agg.afterHoursCalls} |\n`;
@@ -806,28 +828,32 @@ async function generateDayOverDayReport() {
         }
 
         md += `\n## Transfer Breakdown (Today vs Last 7 Days)\n\n`;
-        md += `| Destination | Today | % Today | Last 7 Days | % of 7-Day Calls |\n`;
-        md += `|------------|-------|---------|-------------|------------------|\n`;
+        md += `| Destination | Today | % Today | Last 7 Days | % Last 7 |\n`;
+        md += `|------------|-------|---------|-------------|----------|\n`;
         const reasonKeys = new Set([...Object.keys(latestTransferReasons), ...Object.keys(last7TransferReasons)]);
         const sortedReasons = Array.from(reasonKeys);
         for (const reason of sortedReasons) {
             const todayCount = latestTransferReasons[reason] || 0;
             const todayPct = todayRow.routedCalls > 0 ? Math.round((todayCount / todayRow.routedCalls) * 100) : 0;
             const last7Count = last7TransferReasons[reason] || 0;
-            const last7Pct = last7Calls > 0 ? Math.round((last7Count / last7Calls) * 100) : 0;
+            const last7Pct = last7Routed > 0 ? Math.round((last7Count / last7Routed) * 100) : 0;
             md += `| ${formatTransferReasonLabel(reason)} | ${todayCount} | ${todayPct}% | ${last7Count} | ${last7Pct}% |\n`;
         }
-        md += `| **Total Routed** | **${todayRow.routedCalls}** | **100%** | **${last7Routed}** | **${last7Calls > 0 ? Math.round((last7Routed / last7Calls) * 100) : 0}%** |\n`;
+        md += `| **Total Routed** | **${todayRow.routedCalls}** | **100%** | **${last7Routed}** | **100%** |\n`;
 
         // Period Comparisons
         md += `\n## Period Comparisons\n\n`;
-        const previousRow = dailyRows.length > 1 ? dailyRows[dailyRows.length - 2] : null;
+        const todayIndex = dailyRows.indexOf(todayRow);
+        const previousRow = todayIndex > 0 ? dailyRows[todayIndex - 1] : null;
         if (previousRow) {
             md += `### ${todayRow.date} vs ${previousRow.date}\n\n`;
-            md += `| Metric | ${todayRow.date} | ${previousRow.date} | ? |\n`;
+            md += `| Metric | ${todayRow.date} | ${previousRow.date} | Δ |\n`;
             md += `|--------|------------|-------------|---|\n`;
             const dayDelta = (a, b) => a - b;
-            const formatDelta = (d, suffix = '') => d >= 0 ? `+${d}${suffix} ?` : `${d}${suffix} ?`;
+            const formatDelta = (d, suffix = '') => {
+                const rounded = Math.round(d);
+                return rounded >= 0 ? `+${rounded}${suffix}` : `${rounded}${suffix}`;
+            };
             md += `| Total Calls | ${todayRow.totalCalls} | ${previousRow.totalCalls} | ${formatDelta(dayDelta(todayRow.totalCalls, previousRow.totalCalls))} |\n`;
             md += `| Routed | ${todayRow.routedCalls} | ${previousRow.routedCalls} | ${formatDelta(dayDelta(todayRow.routedCalls, previousRow.routedCalls))} |\n`;
             md += `| Routing Rate | ${todayRow.routingRate}% | ${previousRow.routingRate}% | ${formatDelta(dayDelta(todayRow.routingRate, previousRow.routingRate), '%')} |\n`;
@@ -994,7 +1020,7 @@ async function generateDayOverDayReport() {
                 ? (call.transferReason || call.transferIntent || 'N/A')
                 : (call.category === 'spam' ? (call.spamType || 'spam') : (call.hangupType || call.endedReason || 'N/A'));
             const summary = cleanSummaryText(call.summary || '');
-            md += `| ${timeStr} | ${caller} | ${formatDuration(call.duration || 0)} | ${call.routed ? 'Yes' : 'No'} | ${categoryEmoji(call.category)} | ${statusType} | ${summary} |\n`;
+            md += `| ${timeStr} | ${caller} | ${formatDuration(call.duration || 0)} | ${call.routed ? 'Yes' : 'No'} | ${routingStatusEmoji(call.routingStatus)} | ${statusType} | ${summary} |\n`;
         }
     }
 
