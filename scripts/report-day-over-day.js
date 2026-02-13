@@ -238,6 +238,8 @@ function processCalls(calls, enrichmentMap) {
             routingStatus = 'spam-likely';
         } else if (category === 'spam') {
             routingStatus = 'spam';
+        } else if (category === 'transferred' && !transferAttempted) {
+            routingStatus = 'transfer-failed';
         } else {
             routingStatus = 'not-routed';
         }
@@ -245,6 +247,7 @@ function processCalls(calls, enrichmentMap) {
         const routed = routingStatus === 'routed';
         const notRouted = routingStatus === 'not-routed';
         const hangupBeforeRoute = routingStatus === 'hangup-before-route';
+        const transferFailed = routingStatus === 'transfer-failed';
 
         return {
             callId: call.id,
@@ -263,6 +266,7 @@ function processCalls(calls, enrichmentMap) {
             intentIdentified,
             notRouted,
             hangupBeforeRoute,
+            transferFailed,
             summary: call.summary || 'No summary',
             spamLikely: spamLikely
         };
@@ -280,9 +284,10 @@ function computeMetrics(calls, enrichmentMap) {
     const routedCalls = processedCalls.filter(c => c.routingStatus === 'routed').length;
     const notRoutedCalls = processedCalls.filter(c => c.routingStatus === 'not-routed').length;
     const hangupBeforeRoute = processedCalls.filter(c => c.routingStatus === 'hangup-before-route').length;
+    const transferFailedCalls = processedCalls.filter(c => c.routingStatus === 'transfer-failed').length;
 
     // Sanity check: all calls must be in exactly one routing bucket
-    const accountedFor = routedCalls + notRoutedCalls + hangupBeforeRoute + spamLikelyCalls + spamCalls;
+    const accountedFor = routedCalls + notRoutedCalls + hangupBeforeRoute + spamLikelyCalls + spamCalls + transferFailedCalls;
     if (accountedFor !== totalCalls) {
         console.warn(`WARNING: Routing categories (${accountedFor}) != Total Calls (${totalCalls}). ${totalCalls - accountedFor} calls uncategorized.`);
     }
@@ -326,6 +331,7 @@ function computeMetrics(calls, enrichmentMap) {
     const transferFailureRate = transferAttempted > 0 ? Math.round(((transferAttempted - routedCalls) / transferAttempted) * 100) : 0;
     const spamRate = totalCalls > 0 ? Math.round((spamCalls / totalCalls) * 100) : 0;
     const spamLikelyRate = totalCalls > 0 ? Math.round((spamLikelyCalls / totalCalls) * 100) : 0;
+    const transferFailedRate = totalCalls > 0 ? Math.round((transferFailedCalls / totalCalls) * 100) : 0;
 
     return {
         processedCalls,
@@ -344,6 +350,8 @@ function computeMetrics(calls, enrichmentMap) {
         notRoutedBuckets,
         routedStats,
         hangupBeforeRoute,
+        transferFailedCalls,
+        transferFailedRate,
         afterHoursCalls,
         spamRate,
         transferReasons,
@@ -373,7 +381,7 @@ function hasCustomerSpeech(call) {
 }
 
 function isSpamLikelyShortNoSpeech(call, durationSeconds) {
-    return durationSeconds <= 10 && !hasCustomerSpeech(call);
+    return durationSeconds <= 15 && !hasCustomerSpeech(call);
 }
 
 function cleanSummaryText(summary) {
@@ -410,6 +418,7 @@ function routingStatusEmoji(routingStatus) {
         case 'hangup-before-route': return '⚠ hangup';
         case 'spam': return '✗ spam';
         case 'spam-likely': return '✗ spam-likely';
+        case 'transfer-failed': return '⚠ xfer-fail';
         default: return routingStatus || 'unknown';
     }
 }
@@ -476,7 +485,7 @@ function buildDODExecutiveSummary(todayRow, dailyRows, dayOfWeekAverages) {
     return [
         `**1. Performance Overview**\nLiam handled ${totalCalls} calls on ${todayLabel}, with a routing rate of ${routingRate}% (${routedCalls}/${totalCalls}). ${sampleSizeNote} Week‑to‑date stands at ${wtdTotal} calls with a ${wtdRoutingRate}% routing rate, and month‑to‑date at ${mtdTotal} calls with a ${mtdRoutingRate}% routing rate. ${dowComparison}`,
         `**2. Routing Effectiveness**\nTransfer was attempted on ${transferAttempted} calls (${transferAttemptRate}%), with a ${transferFailureRate}% failure rate. Intent was identified on ${intentIdentified} calls (${intentRate}%), indicating how often the assistant could confidently route to a department. ${Math.max(intentIdentified - transferAttempted, 0)} call(s) showed intent but did not reach a transfer attempt.`,
-        `**3. Caller Experience**\nNot‑routed calls totaled ${todayRow.notRoutedCalls}, with short durations (avg ${notRoutedAvg}, P90 ${notRoutedP90}). Hangups before route were ${todayRow.hangupBeforeRoute}. Spam remained low at ${todayRow.spamCalls} (${todayRow.spamRate}%), with ${todayRow.spamLikelyCalls} flagged as spam‑likely (short/no speech).`,
+        `**3. Caller Experience**\nNot‑routed calls totaled ${todayRow.notRoutedCalls}, with short durations (avg ${notRoutedAvg}, P90 ${notRoutedP90}). Hangups before route were ${todayRow.hangupBeforeRoute}.${todayRow.transferFailedCalls > 0 ? ` Transfer‑failed (verbal commitment without tool invocation) occurred on ${todayRow.transferFailedCalls} call(s).` : ''} Spam remained low at ${todayRow.spamCalls} (${todayRow.spamRate}%), with ${todayRow.spamLikelyCalls} flagged as spam‑likely (≤15s/no speech).`,
         `**4. Strategic Insights**\nAfter‑hours calls represented ${afterHoursRate}% of yesterday’s volume (${todayRow.afterHoursCalls}/${totalCalls}). ${afterHoursInsight} Focus next on lifting intent identification and reducing not‑routed outcomes while maintaining the low transfer failure rate.`
     ].join('\n\n');
 }
@@ -569,6 +578,8 @@ async function generateDayOverDayReport() {
             notRoutedStats: metrics.notRoutedStats,
             routedStats: metrics.routedStats,
             hangupBeforeRoute: metrics.hangupBeforeRoute,
+            transferFailedCalls: metrics.transferFailedCalls,
+            transferFailedRate: metrics.transferFailedRate,
             afterHoursCalls: metrics.afterHoursCalls,
             spamRate: metrics.spamRate,
             spamLikelyRate: metrics.spamLikelyRate,
@@ -590,6 +601,7 @@ async function generateDayOverDayReport() {
                 routedCalls: metrics.routedCalls,
                 notRoutedCalls: metrics.notRoutedCalls,
                 hangupBeforeRoute: metrics.hangupBeforeRoute,
+                transferFailedCalls: metrics.transferFailedCalls,
                 afterHoursCalls: metrics.afterHoursCalls,
                 totalMinutes: metrics.totalMinutes,
                 notRoutedDurationTotal: metrics.notRoutedDurationTotal,
@@ -608,6 +620,7 @@ async function generateDayOverDayReport() {
             agg.routedCalls += metrics.routedCalls;
             agg.notRoutedCalls += metrics.notRoutedCalls;
             agg.hangupBeforeRoute += metrics.hangupBeforeRoute;
+            agg.transferFailedCalls += metrics.transferFailedCalls;
             agg.afterHoursCalls += metrics.afterHoursCalls;
             agg.totalMinutes += metrics.totalMinutes;
             agg.notRoutedDurationTotal += metrics.notRoutedDurationTotal;
@@ -628,6 +641,7 @@ async function generateDayOverDayReport() {
             : 0;
         agg.spamRate = agg.totalCalls > 0 ? Math.round((agg.spamCalls / agg.totalCalls) * 100) : 0;
         agg.spamLikelyRate = agg.totalCalls > 0 ? Math.round((agg.spamLikelyCalls / agg.totalCalls) * 100) : 0;
+        agg.transferFailedRate = agg.totalCalls > 0 ? Math.round((agg.transferFailedCalls / agg.totalCalls) * 100) : 0;
         agg.notRoutedAvgDuration = agg.notRoutedDurationCount > 0
             ? Math.round(agg.notRoutedDurationTotal / agg.notRoutedDurationCount)
             : 0;
@@ -808,6 +822,7 @@ async function generateDayOverDayReport() {
         md += `| Transfer Attempted | ${todayRow.transferAttempted} | ${todayRow.transferAttemptRate}% |\n`;
         md += `| ? Routed | ${todayRow.routedCalls} | ${todayRow.routingRate}% |\n`;
         md += `| ? Transfer Failed | ${transferFailed} | ${todayRow.transferAttempted > 0 ? Math.round((transferFailed / todayRow.transferAttempted) * 100) : 0}% of attempts |\n`;
+        md += `| Transfer Failed (verbal only) | ${todayRow.transferFailedCalls || 0} | ${todayRow.transferFailedRate || 0}% |\n`;
         md += `| Not Routed (no attempt) | ${todayRow.notRoutedCalls} | ${todayRow.totalCalls > 0 ? Math.round((todayRow.notRoutedCalls / todayRow.totalCalls) * 100) : 0}% |\n`;
         md += `| Hangup Before Route | ${todayRow.hangupBeforeRoute} | ${todayRow.totalCalls > 0 ? Math.round((todayRow.hangupBeforeRoute / todayRow.totalCalls) * 100) : 0}% |\n`;
         md += `| Spam Likely (short/no speech) | ${todayRow.spamLikelyCalls} | ${todayRow.spamLikelyRate}% |\n`;
@@ -1031,6 +1046,7 @@ async function generateDayOverDayReport() {
     md += '- **Routed**: Call ended with `assistant-forwarded-call`\n';
     md += '- **Not Routed**: No transfer attempt and call ended by customer or assistant\n';
     md += '- **Hangup Before Route**: Transfer attempted, caller hung up before connection\n';
+    md += '- **Transfer Failed**: AI verbally committed to transfer but tool was never invoked; call timed out\n';
     md += '- **vs Avg**: Comparison to 4-week average for same day of week\n';
     md += '- **Change**: Week-over-week percentage change\n\n';
 

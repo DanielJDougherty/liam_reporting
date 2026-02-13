@@ -204,7 +204,7 @@ function hasCustomerSpeech(call) {
 }
 
 function isSpamLikelyShortNoSpeech(call, durationSeconds) {
-    return durationSeconds <= 10 && !hasCustomerSpeech(call);
+    return durationSeconds <= 15 && !hasCustomerSpeech(call);
 }
 
 function cleanSummaryText(summary) {
@@ -231,6 +231,18 @@ function categoryEmoji(category) {
         case 'spam': return '✗ spam';
         case 'hangup': return '↩ hangup';
         default: return category || 'unknown';
+    }
+}
+
+function routingStatusEmoji(routingStatus) {
+    switch (routingStatus) {
+        case 'routed': return '→ transfer';
+        case 'not-routed': return '↩ not-routed';
+        case 'hangup-before-route': return '⚠ hangup';
+        case 'spam': return '✗ spam';
+        case 'spam-likely': return '✗ spam-likely';
+        case 'transfer-failed': return '⚠ xfer-fail';
+        default: return routingStatus || 'unknown';
     }
 }
 
@@ -330,6 +342,8 @@ async function generateIntradayReport() {
                 routingStatus = 'spam-likely';
             } else if (category?.toLowerCase() === 'spam') {
                 routingStatus = 'spam';
+            } else if (category?.toLowerCase() === 'transferred' && !transferAttempted) {
+                routingStatus = 'transfer-failed';
             } else {
                 routingStatus = 'not-routed';
             }
@@ -337,6 +351,7 @@ async function generateIntradayReport() {
             const routed = routingStatus === 'routed';
             const notRouted = routingStatus === 'not-routed';
             const hangupBeforeRoute = routingStatus === 'hangup-before-route';
+            const transferFailed = routingStatus === 'transfer-failed';
 
             // Extract email
             const email = extractEmail(call);
@@ -362,6 +377,7 @@ async function generateIntradayReport() {
                 intentIdentified: intentIdentified,
                 notRouted: notRouted,
                 hangupBeforeRoute: hangupBeforeRoute,
+                transferFailed: transferFailed,
                 spamLikely: spamLikely
             };
         });
@@ -375,9 +391,10 @@ async function generateIntradayReport() {
         const routedCalls = processedCalls.filter(c => c.routingStatus === 'routed').length;
         const notRoutedCalls = processedCalls.filter(c => c.routingStatus === 'not-routed').length;
         const hangupBeforeRoute = processedCalls.filter(c => c.routingStatus === 'hangup-before-route').length;
+        const transferFailedCalls = processedCalls.filter(c => c.routingStatus === 'transfer-failed').length;
 
         // Sanity check: all calls must be in exactly one routing bucket
-        const accountedFor = routedCalls + notRoutedCalls + hangupBeforeRoute + spamLikelyCalls + spamCalls;
+        const accountedFor = routedCalls + notRoutedCalls + hangupBeforeRoute + spamLikelyCalls + spamCalls + transferFailedCalls;
         if (accountedFor !== totalCalls) {
             console.warn(`WARNING: Routing categories (${accountedFor}) != Total Calls (${totalCalls}). ${totalCalls - accountedFor} calls uncategorized.`);
         }
@@ -396,6 +413,7 @@ async function generateIntradayReport() {
             : '0.0';
         const spamRate = totalCalls > 0 ? ((spamCalls / totalCalls) * 100).toFixed(1) : '0.0';
         const spamLikelyRate = totalCalls > 0 ? ((spamLikelyCalls / totalCalls) * 100).toFixed(1) : '0.0';
+        const transferFailedRate = totalCalls > 0 ? ((transferFailedCalls / totalCalls) * 100).toFixed(1) : '0.0';
 
         // After-hours calls (outside business hours)
         const businessHours = config.client.businessHours || { start: 8, end: 17, days: [1, 2, 3, 4, 5] };
@@ -430,6 +448,8 @@ async function generateIntradayReport() {
             routedCalls,
             notRoutedCalls,
             hangupBeforeRoute,
+            transferFailedCalls,
+            transferFailedRate,
             routingRate,
             transferAttemptRate,
             transferFailureRate,
@@ -443,7 +463,7 @@ async function generateIntradayReport() {
             transferReasons
         };
 
-        console.log(`Metrics - Total: ${metrics.totalCalls}, Spam: ${metrics.spamCalls}, Intent: ${metrics.intentIdentified}, Attempted: ${metrics.transferAttempted}, Routed: ${metrics.routedCalls}, Not Routed: ${metrics.notRoutedCalls}, Hangup Before Route: ${metrics.hangupBeforeRoute}, After-Hours: ${metrics.afterHoursCalls}`);
+        console.log(`Metrics - Total: ${metrics.totalCalls}, Spam: ${metrics.spamCalls}, Intent: ${metrics.intentIdentified}, Attempted: ${metrics.transferAttempted}, Routed: ${metrics.routedCalls}, Not Routed: ${metrics.notRoutedCalls}, Hangup Before Route: ${metrics.hangupBeforeRoute}, Transfer Failed: ${metrics.transferFailedCalls}, After-Hours: ${metrics.afterHoursCalls}`);
 
         // 6. Generate Report with detailed metrics
         // 6. Generate Report with detailed metrics
@@ -605,7 +625,7 @@ ${topNotRouted || '| No not-routed calls | - | - | - |'}
   <td style="padding: 8px; border: 1px solid #ddd;">${call.customerNumber || 'Unknown'}</td>
   <td style="padding: 8px; border: 1px solid #ddd;">${call.email || 'N/A'}</td>
   <td style="padding: 8px; border: 1px solid #ddd;">${formatDuration(call.duration || 0)}</td>
-  <td style="padding: 8px; border: 1px solid #ddd;">${categoryEmoji(call.category)}</td>
+  <td style="padding: 8px; border: 1px solid #ddd;">${routingStatusEmoji(call.routingStatus)}</td>
   <td style="padding: 8px; border: 1px solid #ddd;">${statusType}</td>
   <td style="padding: 8px; border: 1px solid #ddd;">${summary}</td>
 </tr>`;
