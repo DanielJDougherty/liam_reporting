@@ -813,19 +813,22 @@ async function generateDayOverDayReport() {
         md += `\n## KPI Waterfall (Routing) - ${latestDate}\n\n`;
         md += `| Stage | Calls | Rate |\n`;
         md += `|-------|-------|------|\n`;
-        const realCalls = todayRow.totalCalls - todayRow.spamCalls;
+        const totalSpam = todayRow.spamCalls + todayRow.spamLikelyCalls;
+        const totalSpamRate = todayRow.totalCalls > 0 ? Math.round((totalSpam / todayRow.totalCalls) * 100) : 0;
+        const realCalls = todayRow.totalCalls - totalSpam;
         const transferFailed = todayRow.transferAttempted - todayRow.routedCalls;
         md += `| All Calls | ${todayRow.totalCalls} | 100% |\n`;
-        md += `| Spam | ${todayRow.spamCalls} | ${todayRow.spamRate}% |\n`;
+        md += `| Spam (total) | ${totalSpam} | ${totalSpamRate}% |\n`;
+        md += `| — Spam (confirmed) | ${todayRow.spamCalls} | ${todayRow.spamRate}% |\n`;
+        md += `| — Spam Likely (≤15s/no speech) | ${todayRow.spamLikelyCalls} | ${todayRow.spamLikelyRate}% |\n`;
         md += `| Real Calls (excl Spam) | ${realCalls} | ${todayRow.totalCalls > 0 ? Math.round((realCalls / todayRow.totalCalls) * 100) : 0}% |\n`;
         md += `| Intent Identified | ${todayRow.intentIdentified} | ${todayRow.totalCalls > 0 ? Math.round((todayRow.intentIdentified / todayRow.totalCalls) * 100) : 0}% |\n`;
         md += `| Transfer Attempted | ${todayRow.transferAttempted} | ${todayRow.transferAttemptRate}% |\n`;
-        md += `| ? Routed | ${todayRow.routedCalls} | ${todayRow.routingRate}% |\n`;
-        md += `| ? Transfer Failed | ${transferFailed} | ${todayRow.transferAttempted > 0 ? Math.round((transferFailed / todayRow.transferAttempted) * 100) : 0}% of attempts |\n`;
+        md += `| Routed | ${todayRow.routedCalls} | ${todayRow.routingRate}% |\n`;
+        md += `| Transfer Failed (tool) | ${transferFailed} | ${todayRow.transferAttempted > 0 ? Math.round((transferFailed / todayRow.transferAttempted) * 100) : 0}% of attempts |\n`;
         md += `| Transfer Failed (verbal only) | ${todayRow.transferFailedCalls || 0} | ${todayRow.transferFailedRate || 0}% |\n`;
         md += `| Not Routed (no attempt) | ${todayRow.notRoutedCalls} | ${todayRow.totalCalls > 0 ? Math.round((todayRow.notRoutedCalls / todayRow.totalCalls) * 100) : 0}% |\n`;
         md += `| Hangup Before Route | ${todayRow.hangupBeforeRoute} | ${todayRow.totalCalls > 0 ? Math.round((todayRow.hangupBeforeRoute / todayRow.totalCalls) * 100) : 0}% |\n`;
-        md += `| Spam Likely (short/no speech) | ${todayRow.spamLikelyCalls} | ${todayRow.spamLikelyRate}% |\n`;
 
         // Transfer Breakdown (Today vs Last 7 Days)
         const last7Rows = dailyRows.slice(-7);

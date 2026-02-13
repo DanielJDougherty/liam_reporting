@@ -516,12 +516,12 @@ ${callPurposesList}
 
 **Metrics**:
 - Total Calls: ${metrics.totalCalls}
-- Spam Calls: ${metrics.spamCalls} (${metrics.spamRate}%)
-- Spam Likely (short/no speech): ${metrics.spamLikelyCalls} (${metrics.spamLikelyRate}%)
+- Spam (total): ${metrics.spamCalls + metrics.spamLikelyCalls} (confirmed: ${metrics.spamCalls}, likely: ${metrics.spamLikelyCalls})
 - Intent Identified: ${metrics.intentIdentified}
 - Transfer Attempted: ${metrics.transferAttempted} (${metrics.transferAttemptRate}%)
 - Routed: ${metrics.routedCalls} (${metrics.routingRate}%)
 - Transfer Failure Rate: ${metrics.transferFailureRate}%
+- Transfer Failed (verbal only): ${metrics.transferFailedCalls}
 - Not Routed: ${metrics.notRoutedCalls}
 - Hangup Before Route: ${metrics.hangupBeforeRoute}
 - After-Hours Calls: ${metrics.afterHoursCalls}
@@ -560,13 +560,15 @@ When you see low volume, ask yourself: "Is this expected given the day/week/seas
 | Metric | Count | % |
 |--------|-------|---|
 | Total Calls | ${metrics.totalCalls} | 100% |
-| Spam Calls | ${metrics.spamCalls} | ${metrics.spamRate}% |
-| Spam Likely (short/no speech) | ${metrics.spamLikelyCalls} | ${metrics.spamLikelyRate}% |
+| Spam (total) | ${metrics.spamCalls + metrics.spamLikelyCalls} | ${(parseFloat(metrics.spamRate) + parseFloat(metrics.spamLikelyRate)).toFixed(1)}% |
+| — Spam (confirmed) | ${metrics.spamCalls} | ${metrics.spamRate}% |
+| — Spam Likely (≤15s/no speech) | ${metrics.spamLikelyCalls} | ${metrics.spamLikelyRate}% |
 | Intent Identified | ${metrics.intentIdentified} | - |
 | Transfer Attempted | ${metrics.transferAttempted} | ${metrics.transferAttemptRate}% |
 | Routed | ${metrics.routedCalls} | ${metrics.routingRate}% |
 | Not Routed | ${metrics.notRoutedCalls} | - |
 | Hangup Before Route | ${metrics.hangupBeforeRoute} | - |
+| Transfer Failed | ${metrics.transferFailedCalls} | ${metrics.transferFailedRate}% |
 | After-Hours Calls | ${metrics.afterHoursCalls} | - |
 
 ## Duration Quality
@@ -613,11 +615,15 @@ ${topNotRouted || '| No not-routed calls | - | - | - |'}
                 : 'N/A';
             const statusType = call.routed
                 ? (call.transferReason || call.transferIntent || 'N/A')
-                : (call.category?.toLowerCase() === 'spam'
-                    ? (call.spamType || 'N/A')
-                    : (call.category?.toLowerCase() === 'hangup'
-                        ? (call.hangupType || 'N/A')
-                        : 'N/A'));
+                : call.routingStatus === 'spam-likely'
+                    ? (call.spamType || 'short/no speech')
+                    : call.routingStatus === 'spam'
+                        ? (call.spamType || 'spam')
+                    : call.routingStatus === 'transfer-failed'
+                        ? (call.endedReason || 'verbal-only')
+                    : call.routingStatus === 'hangup-before-route'
+                        ? (call.hangupType || 'hangup')
+                    : (call.endedReason || 'N/A');
             const summary = cleanSummaryText(call.summary || '');
 
             return `<tr>
