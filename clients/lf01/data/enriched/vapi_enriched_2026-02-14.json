@@ -63,5 +63,70 @@
       "spamType": null,
       "bookingStatus": "none"
     }
+  },
+  "019c5daa-b2ba-755a-9e91-ebf60d17b41e": {
+    "callId": "019c5daa-b2ba-755a-9e91-ebf60d17b41e",
+    "enrichedAt": "2026-02-14T20:26:13.458Z",
+    "createdAt": "2026-02-14T19:39:53.914Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c5d9a-a889-7336-9531-e13ed64fc08f": {
+    "callId": "019c5d9a-a889-7336-9531-e13ed64fc08f",
+    "enrichedAt": "2026-02-14T20:26:13.458Z",
+    "createdAt": "2026-02-14T19:22:22.729Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "service-repair",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c5d65-2961-7aa3-9907-26a86f49af37": {
+    "callId": "019c5d65-2961-7aa3-9907-26a86f49af37",
+    "enrichedAt": "2026-02-14T20:26:13.458Z",
+    "createdAt": "2026-02-14T18:23:56.769Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "booking-transferred",
+      "hangupType": null,
+      "transferReason": "sales",
+      "spamType": null,
+      "bookingStatus": "booking-attempt"
+    }
+  },
+  "019c5d3d-703d-7448-896d-c82c78dd5f24": {
+    "callId": "019c5d3d-703d-7448-896d-c82c78dd5f24",
+    "enrichedAt": "2026-02-14T20:26:13.458Z",
+    "createdAt": "2026-02-14T17:40:33.469Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "general",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  },
+  "019c5d06-c2f6-7226-ac7b-74577052b299": {
+    "callId": "019c5d06-c2f6-7226-ac7b-74577052b299",
+    "enrichedAt": "2026-02-14T20:26:13.458Z",
+    "createdAt": "2026-02-14T16:40:50.166Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
   }
 }
