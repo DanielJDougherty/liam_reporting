@@ -1,0 +1,15 @@
+{
+  "019c59c9-ebe0-7333-98b3-391cc438485d": {
+    "callId": "019c59c9-ebe0-7333-98b3-391cc438485d",
+    "enrichedAt": "2026-02-14T10:18:17.737Z",
+    "createdAt": "2026-02-14T01:35:31.296Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "hangup",
+      "hangupType": "low-value",
+      "transferReason": null,
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  }
+}
