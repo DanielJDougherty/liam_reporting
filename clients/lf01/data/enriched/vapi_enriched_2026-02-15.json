@@ -1,0 +1,15 @@
+{
+  "019c5eb2-42f0-7bb6-a7ca-1922bf397755": {
+    "callId": "019c5eb2-42f0-7bb6-a7ca-1922bf397755",
+    "enrichedAt": "2026-02-15T10:18:39.697Z",
+    "createdAt": "2026-02-15T00:27:46.800Z",
+    "model": "gpt-4o-mini",
+    "classification": {
+      "category": "transferred",
+      "hangupType": null,
+      "transferReason": "general",
+      "spamType": null,
+      "bookingStatus": "none"
+    }
+  }
+}

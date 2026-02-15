@@ -5984,5 +5984,1845 @@
       "sbcCallSid": "645574635-3980076049-224385289@msc1.382COM.COM",
       "conversationType": "voice"
     }
+  },
+  {
+    "id": "019c5e57-09e6-744f-b8f0-a9ba3fc29885",
+    "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+    "phoneNumberId": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+    "type": "inboundPhoneCall",
+    "startedAt": "2026-02-14T22:48:08.634Z",
+    "endedAt": "2026-02-14T22:48:55.662Z",
+    "transcript": "AI: I'm Liam, an automated assistant here to get you to the Rightly Filter team instantly. You can speak to me just like a human. What do you need what do you need help with?\nUser: Better.\nAI: Great. What can what can we help you with today?\nUser: Well, I just need them in the front of the house.\nAI: Sure. Are you an existing LeafFilter customer? Or are you calling to get a quote?\nUser: Get a quote.\nAI: Awesome. Let's get you a price connecting you to sales now.\n",
+    "recordingUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-19bccf12-6640-43a4-84db-05015f32328d-mono.wav",
+    "summary": "Here's a summary and analysis of the interaction:\n\n**Summary of Interaction:**\n\nThe user initiated a call to LeafFilter and was greeted by an automated assistant. The user's primary need is to get LeafFilter installed \"in the front of the house.\" When prompted, they confirmed they are calling to \"get a quote.\" The AI successfully identified this need and forwarded the call to the sales department.\n\n**What is important to the caller:**\n\n*   Getting a quote for LeafFilter installation.\n*   Specifically, they mentioned needing it for \"the front of the house,\" which implies a partial installation or a specific area of concern.\n\n**Relevant information for different agents:**\n\n*   **Customer Service Agent:** If the call were misrouted, they would need to know the user wants a quote for new installation, not service on existing filters.\n*   **In-Home Sales Agent:**\n    *   **Primary Goal:** Provide a quote for LeafFilter.\n    *   **Key Detail:** The user specifically mentioned \"the front of the house.\" This could mean:\n        *   They only need filters on the front gutters.\n        *   They have existing filters elsewhere and only need the front done.\n        *   They are prioritizing the front due to a specific problem (e.g., a tree, ice dams).\n        *   It's a starting point for discussion, and they might need the whole house.\n        *   The sales agent should be prepared to discuss partial vs. full installations and explore the \"why\" behind \"front of the house.\"\n*   **Installation Technician:** This call is too early for an installation technician, but if they were ever dispatched, they'd need to know the scope of work (front of house, full house, etc.) which would be determined by the sales agent.\n\n**Sentiment:**\n\nThe sentiment appears **neutral to slightly positive**. The user's responses are direct and cooperative. There's no indication of frustration or anger. The AI's tone is also positive (\"Great,\" \"Awesome\").\n\n**Ease of Interaction:**\n\nThe interaction was **very easy**. The AI quickly understood the user's intent despite a slightly vague initial response (\"Better\") and efficiently routed the call.\n\n**Frustration or Elevation:**\n\nThere was **no frustration or elevation** detected from the caller. The process was smooth and direct.\n\n**Was the call resolved?**\n\n**Yes, the call was resolved for this stage of the customer journey.**\n\n**Justification:**\n\nThe user's stated goal was to \"get a quote.\" The AI successfully identified this need and, as indicated by the `assistant-forwarded-call` reason, connected the user to the appropriate department (sales) to fulfill that request. The AI's role was to qualify and route, which it did effectively. The next step for the user is to speak with a sales representative to actually receive the quote.",
+    "createdAt": "2026-02-14T22:48:08.422Z",
+    "updatedAt": "2026-02-14T22:49:04.226Z",
+    "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+    "cost": 0.0628,
+    "customer": {
+      "number": "+18173600413",
+      "sipUri": "sip:+18173600413@44.229.228.186:5060"
+    },
+    "status": "ended",
+    "endedReason": "assistant-forwarded-call",
+    "messages": [
+      {
+        "role": "system",
+        "time": 1771109288532,
+        "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+        "secondsFromStart": 0
+      },
+      {
+        "role": "bot",
+        "time": 1771109289635,
+        "source": "",
+        "endTime": 1771109299955,
+        "message": "I'm Liam, an automated assistant here to get you to the Rightly Filter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+        "duration": 8560,
+        "secondsFromStart": 1.001
+      },
+      {
+        "role": "user",
+        "time": 1771109302915,
+        "endTime": 1771109303314.999,
+        "message": "Better.",
+        "duration": 399.9990234375,
+        "metadata": {
+          "wordLevelConfidence": [
+            {
+              "end": 14.639999,
+              "word": "better",
+              "start": 14.24,
+              "confidence": 0.8117676,
+              "punctuated_word": "Better."
+            }
+          ]
+        },
+        "secondsFromStart": 14.24
+      },
+      {
+        "role": "bot",
+        "time": 1771109304525,
+        "source": "",
+        "endTime": 1771109306365,
+        "message": "Great. What can what can we help you with today?",
+        "duration": 1840,
+        "secondsFromStart": 15.891
+      },
+      {
+        "role": "user",
+        "time": 1771109308585,
+        "endTime": 1771109310745,
+        "message": "Well, I just need them in the front of the house.",
+        "duration": 2160,
+        "metadata": {
+          "wordLevelConfidence": [
+            {
+              "end": 20.23,
+              "word": "well",
+              "start": 19.91,
+              "confidence": 0.857666,
+              "punctuated_word": "Well,"
+            },
+            {
+              "end": 20.39,
+              "word": "i",
+              "start": 20.23,
+              "confidence": 1,
+              "punctuated_word": "I"
+            },
+            {
+              "end": 20.63,
+              "word": "just",
+              "start": 20.39,
+              "confidence": 1,
+              "punctuated_word": "just"
+            },
+            {
+              "end": 20.869999,
+              "word": "need",
+              "start": 20.63,
+              "confidence": 0.92822266,
+              "punctuated_word": "need"
+            },
+            {
+              "end": 21.19,
+              "word": "them",
+              "start": 20.869999,
+              "confidence": 0.984375,
+              "punctuated_word": "them"
+            },
+            {
+              "end": 21.27,
+              "word": "in",
+              "start": 21.19,
+              "confidence": 0.9873047,
+              "punctuated_word": "in"
+            },
+            {
+              "end": 21.43,
+              "word": "the",
+              "start": 21.27,
+              "confidence": 0.9819336,
+              "punctuated_word": "the"
+            },
+            {
+              "end": 21.67,
+              "word": "front",
+              "start": 21.43,
+              "confidence": 0.9970703,
+              "punctuated_word": "front"
+            },
+            {
+              "end": 21.75,
+              "word": "of",
+              "start": 21.67,
+              "confidence": 0.99609375,
+              "punctuated_word": "of"
+            },
+            {
+              "end": 21.91,
+              "word": "the",
+              "start": 21.75,
+              "confidence": 0.9165039,
+              "punctuated_word": "the"
+            },
+            {
+              "end": 22.07,
+              "word": "house",
+              "start": 21.91,
+              "confidence": 0.81469727,
+              "punctuated_word": "house."
+            }
+          ]
+        },
+        "secondsFromStart": 19.91
+      },
+      {
+        "role": "bot",
+        "time": 1771109311995,
+        "source": "",
+        "endTime": 1771109316335,
+        "message": "Sure. Are you an existing LeafFilter customer? Or are you calling to get a quote?",
+        "duration": 4159.9990234375,
+        "secondsFromStart": 23.361
+      },
+      {
+        "role": "user",
+        "time": 1771109319815,
+        "endTime": 1771109320695,
+        "message": "Get a quote.",
+        "duration": 880,
+        "metadata": {
+          "wordLevelConfidence": [
+            {
+              "end": 31.54,
+              "word": "get",
+              "start": 31.14,
+              "confidence": 0.9199219,
+              "punctuated_word": "Get"
+            },
+            {
+              "end": 31.7,
+              "word": "a",
+              "start": 31.54,
+              "confidence": 0.9980469,
+              "punctuated_word": "a"
+            },
+            {
+              "end": 32.02,
+              "word": "quote",
+              "start": 31.7,
+              "confidence": 0.82836914,
+              "punctuated_word": "quote."
+            }
+          ]
+        },
+        "secondsFromStart": 31.14
+      },
+      {
+        "role": "tool_calls",
+        "time": 1771109320704,
+        "message": "",
+        "toolCalls": [
+          {
+            "id": "call_sXdnkHXNcxstgvMymzLxvODw",
+            "type": "function",
+            "function": {
+              "name": "transfer_intent",
+              "arguments": "{\"destination\": \"+18774133674\"}"
+            }
+          }
+        ],
+        "secondsFromStart": 32.07
+      },
+      {
+        "role": "bot",
+        "time": 1771109321965,
+        "source": "",
+        "endTime": 1771109325005,
+        "message": "Awesome. Let's get you a price connecting you to sales now.",
+        "duration": 3040,
+        "secondsFromStart": 33.331
+      },
+      {
+        "name": "transfer_intent",
+        "role": "tool_call_result",
+        "time": 1771109324317,
+        "result": "Transfer initiated.",
+        "toolCallId": "call_sXdnkHXNcxstgvMymzLxvODw",
+        "secondsFromStart": 35.683
+      }
+    ],
+    "stereoRecordingUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-ebfccf89-f8b1-4deb-8af3-ee0aafb395f5-stereo.wav",
+    "costBreakdown": {
+      "transport": 0,
+      "stt": 0.0081,
+      "llm": 0.0014,
+      "tts": 0.0061,
+      "vapi": 0.0392,
+      "chat": 0,
+      "total": 0.0628,
+      "llmPromptTokens": 11752,
+      "llmCompletionTokens": 74,
+      "llmCachedPromptTokens": 7680,
+      "ttsCharacters": 121,
+      "analysisCostBreakdown": {
+        "summary": 0.0073,
+        "structuredData": 0,
+        "structuredOutput": 0,
+        "successEvaluation": 0.0008,
+        "summaryPromptTokens": 485,
+        "summaryCompletionTokens": 941,
+        "summaryCachedPromptTokens": 0,
+        "structuredDataPromptTokens": 0,
+        "structuredOutputPromptTokens": 0,
+        "successEvaluationPromptTokens": 2696,
+        "structuredDataCompletionTokens": 0,
+        "structuredDataCachedPromptTokens": 0,
+        "structuredOutputCompletionTokens": 0,
+        "successEvaluationCompletionTokens": 9,
+        "structuredOutputCachedPromptTokens": 0,
+        "successEvaluationCachedPromptTokens": 0
+      },
+      "knowledgeBaseCost": 0,
+      "voicemailDetectionCost": 0
+    },
+    "phoneCallProvider": "vapi",
+    "phoneCallProviderId": "e351f2f7-a797-404d-b100-d5d6a096668b",
+    "forwardedPhoneNumber": "+18774133674",
+    "phoneCallTransport": "sip",
+    "phoneCallProviderDetails": {
+      "sip": {
+        "raw": "INVITE sip:3078408336@172.30.27.240:5060 SIP/2.0\r\nVia: SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bKD2BKrUDDBN40r;received=172.31.57.86\r\nMax-Forwards: 70\r\nFrom: <sip:+18173600413;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=N32Hc1Bmt3meQ\r\nTo: <sip:3078408336@192.168.250.45>\r\nCall-ID: 12bfc9d2-849a-123f-b9b3-0ec7040a32ad\r\nCSeq: 111000852 INVITE\r\nContact: <sip:172.31.57.86:5060>\r\nAccept: application/sdp\r\nAllow: PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL\r\nSupported: 100rel, timer\r\nMin-SE: 600\r\nPrivacy: none\r\nContent-Type: application/sdp\r\nContent-Length: 303\r\nX-Account-Sid: c033b672-5b99-42ae-9ce2-b231e9a522fb\r\nX-CID: 646210008-3980098088-1930939723@msc1.382COM.COM\r\nX-Forwarded-For: 64.125.111.10\r\nX-Originating-Carrier: 382com\r\nX-Voip-Carrier-Sid: a5569621-84ac-49cc-a8b8-11c7fb96b905\r\nX-Application-Sid: 79d078c8-76b2-452a-99e0-ddd5abbf6269\r\nIdentity: eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTA5Mjg3LCJvcmlnIjp7InRuIjoiMTgxNzM2MDA0MTMifSwib3JpZ2lkIjoiM2IyNmE5NjAtMDlmNy0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0.tb70UoqwGB5jMp2UHeFoFpqprBiaTjD22nnfZjB8S8i0WGHyUSQIcQkaEU7rxj24y5wEegN-olBHW3_Iw3KbZQ;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"\r\nP-Asserted-Identity: <sip:+18173600413@207.223.78.171:5060>\r\n\r\nv=0\r\no=msc1 87904 6920 IN IP4 172.31.61.127\r\ns=sip call\r\nc=IN IP4 172.31.61.127\r\nt=0 0\r\nm=audio 58682 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:58683\r\n",
+        "uri": "sip:3078408336@172.30.27.240:5060",
+        "body": "v=0\r\no=msc1 87904 6920 IN IP4 172.31.61.127\r\ns=sip call\r\nc=IN IP4 172.31.61.127\r\nt=0 0\r\nm=audio 58682 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:58683\r\n",
+        "method": "INVITE",
+        "headers": {
+          "to": "<sip:+13078408336@192.168.250.45>",
+          "via": "SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bKD2BKrUDDBN40r;received=172.31.57.86",
+          "cseq": "111000852 INVITE",
+          "from": "<sip:+18173600413;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=N32Hc1Bmt3meQ",
+          "X-CID": "646210008-3980098088-1930939723@msc1.382COM.COM",
+          "allow": "PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL",
+          "accept": "application/sdp",
+          "min-se": "600",
+          "call-id": "12bfc9d2-849a-123f-b9b3-0ec7040a32ad",
+          "contact": "<sip:172.31.57.86:5060>",
+          "privacy": "none",
+          "identity": "eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTA5Mjg3LCJvcmlnIjp7InRuIjoiMTgxNzM2MDA0MTMifSwib3JpZ2lkIjoiM2IyNmE5NjAtMDlmNy0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0.tb70UoqwGB5jMp2UHeFoFpqprBiaTjD22nnfZjB8S8i0WGHyUSQIcQkaEU7rxj24y5wEegN-olBHW3_Iw3KbZQ;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"",
+          "supported": "100rel, timer",
+          "content-type": "application/sdp",
+          "max-forwards": "70",
+          "X-Account-Sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+          "content-length": "303",
+          "X-Forwarded-For": "64.125.111.10",
+          "X-Application-Sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+          "X-Voip-Carrier-Sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+          "p-asserted-identity": "<sip:+18173600413@207.223.78.171:5060>",
+          "X-Originating-Carrier": "382com"
+        },
+        "payload": [
+          {
+            "type": "application/sdp",
+            "content": "v=0\r\no=msc1 87904 6920 IN IP4 172.31.61.127\r\ns=sip call\r\nc=IN IP4 172.31.61.127\r\nt=0 0\r\nm=audio 58682 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:58683\r\n"
+          }
+        ],
+        "version": "2.0"
+      },
+      "sbcCallId": "646210008-3980098088-1930939723@msc1.382COM.COM"
+    },
+    "assistantOverrides": {
+      "variableValues": {
+        "cid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      }
+    },
+    "analysis": {
+      "summary": "Here's a summary and analysis of the interaction:\n\n**Summary of Interaction:**\n\nThe user initiated a call to LeafFilter and was greeted by an automated assistant. The user's primary need is to get LeafFilter installed \"in the front of the house.\" When prompted, they confirmed they are calling to \"get a quote.\" The AI successfully identified this need and forwarded the call to the sales department.\n\n**What is important to the caller:**\n\n*   Getting a quote for LeafFilter installation.\n*   Specifically, they mentioned needing it for \"the front of the house,\" which implies a partial installation or a specific area of concern.\n\n**Relevant information for different agents:**\n\n*   **Customer Service Agent:** If the call were misrouted, they would need to know the user wants a quote for new installation, not service on existing filters.\n*   **In-Home Sales Agent:**\n    *   **Primary Goal:** Provide a quote for LeafFilter.\n    *   **Key Detail:** The user specifically mentioned \"the front of the house.\" This could mean:\n        *   They only need filters on the front gutters.\n        *   They have existing filters elsewhere and only need the front done.\n        *   They are prioritizing the front due to a specific problem (e.g., a tree, ice dams).\n        *   It's a starting point for discussion, and they might need the whole house.\n        *   The sales agent should be prepared to discuss partial vs. full installations and explore the \"why\" behind \"front of the house.\"\n*   **Installation Technician:** This call is too early for an installation technician, but if they were ever dispatched, they'd need to know the scope of work (front of house, full house, etc.) which would be determined by the sales agent.\n\n**Sentiment:**\n\nThe sentiment appears **neutral to slightly positive**. The user's responses are direct and cooperative. There's no indication of frustration or anger. The AI's tone is also positive (\"Great,\" \"Awesome\").\n\n**Ease of Interaction:**\n\nThe interaction was **very easy**. The AI quickly understood the user's intent despite a slightly vague initial response (\"Better\") and efficiently routed the call.\n\n**Frustration or Elevation:**\n\nThere was **no frustration or elevation** detected from the caller. The process was smooth and direct.\n\n**Was the call resolved?**\n\n**Yes, the call was resolved for this stage of the customer journey.**\n\n**Justification:**\n\nThe user's stated goal was to \"get a quote.\" The AI successfully identified this need and, as indicated by the `assistant-forwarded-call` reason, connected the user to the appropriate department (sales) to fulfill that request. The AI's role was to qualify and route, which it did effectively. The next step for the user is to speak with a sales representative to actually receive the quote.",
+      "successEvaluation": "true"
+    },
+    "artifact": {
+      "recordingUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-19bccf12-6640-43a4-84db-05015f32328d-mono.wav",
+      "stereoRecordingUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-ebfccf89-f8b1-4deb-8af3-ee0aafb395f5-stereo.wav",
+      "recording": {
+        "stereoUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-ebfccf89-f8b1-4deb-8af3-ee0aafb395f5-stereo.wav",
+        "mono": {
+          "combinedUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-19bccf12-6640-43a4-84db-05015f32328d-mono.wav",
+          "assistantUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-51e01780-539a-49ad-97d9-f4a8e41aa0e4-mono.wav",
+          "customerUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338291-46d9b087-1435-414b-8485-88320c9c8fdb-mono.wav"
+        }
+      },
+      "messages": [
+        {
+          "role": "system",
+          "time": 1771109288532,
+          "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "secondsFromStart": 0
+        },
+        {
+          "role": "bot",
+          "time": 1771109289635,
+          "source": "",
+          "endTime": 1771109299955,
+          "message": "I'm Liam, an automated assistant here to get you to the Rightly Filter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+          "duration": 8560,
+          "secondsFromStart": 1.001
+        },
+        {
+          "role": "user",
+          "time": 1771109302915,
+          "endTime": 1771109303314.999,
+          "message": "Better.",
+          "duration": 399.9990234375,
+          "metadata": {
+            "wordLevelConfidence": [
+              {
+                "end": 14.639999,
+                "word": "better",
+                "start": 14.24,
+                "confidence": 0.8117676,
+                "punctuated_word": "Better."
+              }
+            ]
+          },
+          "secondsFromStart": 14.24
+        },
+        {
+          "role": "bot",
+          "time": 1771109304525,
+          "source": "",
+          "endTime": 1771109306365,
+          "message": "Great. What can what can we help you with today?",
+          "duration": 1840,
+          "secondsFromStart": 15.891
+        },
+        {
+          "role": "user",
+          "time": 1771109308585,
+          "endTime": 1771109310745,
+          "message": "Well, I just need them in the front of the house.",
+          "duration": 2160,
+          "metadata": {
+            "wordLevelConfidence": [
+              {
+                "end": 20.23,
+                "word": "well",
+                "start": 19.91,
+                "confidence": 0.857666,
+                "punctuated_word": "Well,"
+              },
+              {
+                "end": 20.39,
+                "word": "i",
+                "start": 20.23,
+                "confidence": 1,
+                "punctuated_word": "I"
+              },
+              {
+                "end": 20.63,
+                "word": "just",
+                "start": 20.39,
+                "confidence": 1,
+                "punctuated_word": "just"
+              },
+              {
+                "end": 20.869999,
+                "word": "need",
+                "start": 20.63,
+                "confidence": 0.92822266,
+                "punctuated_word": "need"
+              },
+              {
+                "end": 21.19,
+                "word": "them",
+                "start": 20.869999,
+                "confidence": 0.984375,
+                "punctuated_word": "them"
+              },
+              {
+                "end": 21.27,
+                "word": "in",
+                "start": 21.19,
+                "confidence": 0.9873047,
+                "punctuated_word": "in"
+              },
+              {
+                "end": 21.43,
+                "word": "the",
+                "start": 21.27,
+                "confidence": 0.9819336,
+                "punctuated_word": "the"
+              },
+              {
+                "end": 21.67,
+                "word": "front",
+                "start": 21.43,
+                "confidence": 0.9970703,
+                "punctuated_word": "front"
+              },
+              {
+                "end": 21.75,
+                "word": "of",
+                "start": 21.67,
+                "confidence": 0.99609375,
+                "punctuated_word": "of"
+              },
+              {
+                "end": 21.91,
+                "word": "the",
+                "start": 21.75,
+                "confidence": 0.9165039,
+                "punctuated_word": "the"
+              },
+              {
+                "end": 22.07,
+                "word": "house",
+                "start": 21.91,
+                "confidence": 0.81469727,
+                "punctuated_word": "house."
+              }
+            ]
+          },
+          "secondsFromStart": 19.91
+        },
+        {
+          "role": "bot",
+          "time": 1771109311995,
+          "source": "",
+          "endTime": 1771109316335,
+          "message": "Sure. Are you an existing LeafFilter customer? Or are you calling to get a quote?",
+          "duration": 4159.9990234375,
+          "secondsFromStart": 23.361
+        },
+        {
+          "role": "user",
+          "time": 1771109319815,
+          "endTime": 1771109320695,
+          "message": "Get a quote.",
+          "duration": 880,
+          "metadata": {
+            "wordLevelConfidence": [
+              {
+                "end": 31.54,
+                "word": "get",
+                "start": 31.14,
+                "confidence": 0.9199219,
+                "punctuated_word": "Get"
+              },
+              {
+                "end": 31.7,
+                "word": "a",
+                "start": 31.54,
+                "confidence": 0.9980469,
+                "punctuated_word": "a"
+              },
+              {
+                "end": 32.02,
+                "word": "quote",
+                "start": 31.7,
+                "confidence": 0.82836914,
+                "punctuated_word": "quote."
+              }
+            ]
+          },
+          "secondsFromStart": 31.14
+        },
+        {
+          "role": "tool_calls",
+          "time": 1771109320704,
+          "message": "",
+          "toolCalls": [
+            {
+              "id": "call_sXdnkHXNcxstgvMymzLxvODw",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133674\"}"
+              }
+            }
+          ],
+          "secondsFromStart": 32.07
+        },
+        {
+          "role": "bot",
+          "time": 1771109321965,
+          "source": "",
+          "endTime": 1771109325005,
+          "message": "Awesome. Let's get you a price connecting you to sales now.",
+          "duration": 3040,
+          "secondsFromStart": 33.331
+        },
+        {
+          "name": "transfer_intent",
+          "role": "tool_call_result",
+          "time": 1771109324317,
+          "result": "Transfer initiated.",
+          "toolCallId": "call_sXdnkHXNcxstgvMymzLxvODw",
+          "secondsFromStart": 35.683
+        }
+      ],
+      "messagesOpenAIFormatted": [
+        {
+          "content": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "role": "system"
+        },
+        {
+          "content": "I'm Liam, an automated assistant here to get you to the Rightly Filter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+          "role": "assistant"
+        },
+        {
+          "content": "Better.",
+          "role": "user"
+        },
+        {
+          "content": "Great. What can what can we help you with today?",
+          "role": "assistant"
+        },
+        {
+          "content": "Well, I just need them in the front of the house.",
+          "role": "user"
+        },
+        {
+          "content": "Sure. Are you an existing LeafFilter customer? Or are you calling to get a quote?",
+          "role": "assistant"
+        },
+        {
+          "content": "Get a quote.",
+          "role": "user"
+        },
+        {
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "id": "call_sXdnkHXNcxstgvMymzLxvODw",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133674\"}"
+              }
+            }
+          ]
+        },
+        {
+          "content": "Transfer initiated.",
+          "role": "tool",
+          "tool_call_id": "call_sXdnkHXNcxstgvMymzLxvODw"
+        },
+        {
+          "content": "Awesome. Let's get you a price connecting you to sales now.",
+          "role": "assistant"
+        }
+      ],
+      "transcript": "AI: I'm Liam, an automated assistant here to get you to the Rightly Filter team instantly. You can speak to me just like a human. What do you need what do you need help with?\nUser: Better.\nAI: Great. What can what can we help you with today?\nUser: Well, I just need them in the front of the house.\nAI: Sure. Are you an existing LeafFilter customer? Or are you calling to get a quote?\nUser: Get a quote.\nAI: Awesome. Let's get you a price connecting you to sales now.\n",
+      "pcapUrl": "https://storage.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885-1771109338493-6be46692-968b-4325-b77e-7d86972e8198-sip.pcap",
+      "logUrl": "https://calllogs.vapi.ai/f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6/019c5e57-09e6-744f-b8f0-a9ba3fc29885-2defd244-4159-4922-afe9-47e2e6e38d77-1771109343906.jsonl.gz",
+      "nodes": [],
+      "variableValues": {
+        "cid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 10:48 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "10:48 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+18173600413",
+          "sipUri": "sip:+18173600413@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "e351f2f7-a797-404d-b100-d5d6a096668b",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 10:48 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "variables": {
+        "cid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 10:48 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "10:48 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+18173600413",
+          "sipUri": "sip:+18173600413@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "e351f2f7-a797-404d-b100-d5d6a096668b",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 10:48 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "performanceMetrics": {
+        "turnLatencies": [
+          {
+            "modelLatency": 654,
+            "voiceLatency": 236,
+            "transcriberLatency": 298,
+            "endpointingLatency": 101,
+            "turnLatency": 1328
+          },
+          {
+            "modelLatency": 576,
+            "voiceLatency": 269,
+            "transcriberLatency": 243,
+            "endpointingLatency": 102,
+            "turnLatency": 1226
+          },
+          {
+            "modelLatency": 0,
+            "voiceLatency": 0,
+            "transcriberLatency": 345,
+            "endpointingLatency": 100,
+            "turnLatency": 1388
+          }
+        ],
+        "modelLatencyAverage": 410,
+        "voiceLatencyAverage": 168.33,
+        "transcriberLatencyAverage": 295.33,
+        "endpointingLatencyAverage": 101,
+        "turnLatencyAverage": 1314,
+        "fromTransportLatencyAverage": 20,
+        "toTransportLatencyAverage": 20
+      },
+      "scorecards": {},
+      "transfers": []
+    },
+    "destination": {
+      "type": "number",
+      "number": "+18774133674",
+      "message": "Awesome, let's get you a price. Connecting you to Sales now.",
+      "callerId": "{{customer.number}}",
+      "description": "SALES ROUTE: Run this when the caller is a new or prospective customer expressing interest in buying, pricing, product information, availability, or starting a new project. \n\nThey may be asking about:\n• Getting a quote or estimate\n• Pricing or costs\n• Product information\n• Starting a new project\n• Sales Person coming out to their home for the first time\n• “Shopping around” or general interest\n\nTrigger when caller intention is clearly forward-moving toward a purchase.\n\nExample Phrases:\n“I want to get a quote…”\n\"I want to schedule an estimate...\" - when you are sure about the intent = new customer\n“I’m looking to buy…”\n\"What do you charge\"\n“Can someone tell me about pricing?”\n“I’m interested in your product/services.”\n“We’re ready to move forward.”\n\nHigh-level interest without a specific request:\n“I’m just shopping/looking around…”\n“Can you tell me what you guys do?”\nAmbiguous early-stage interest requiring more discovery.",
+      "transferPlan": {
+        "mode": "blind-transfer-add-summary-to-sip-header",
+        "sipVerb": "refer"
+      },
+      "numberE164CheckEnabled": true
+    },
+    "costs": [
+      {
+        "cost": 0.005712,
+        "type": "analysis",
+        "model": {
+          "model": "claude-sonnet-4-5-20250929",
+          "provider": "anthropic"
+        },
+        "analysisType": "summary",
+        "promptTokens": 249,
+        "completionTokens": 331
+      },
+      {
+        "cost": 0.008086633333333334,
+        "type": "transcriber",
+        "minutes": 0.8258500000000001,
+        "transcriber": {
+          "model": "nova-3-general",
+          "provider": "deepgram"
+        }
+      },
+      {
+        "cost": 0.001358,
+        "type": "model",
+        "model": {
+          "model": "gpt-5-mini",
+          "provider": "openai"
+        },
+        "promptTokens": 11752,
+        "completionTokens": 74,
+        "cachedPromptTokens": 7680
+      },
+      {
+        "cost": 0.00605,
+        "type": "voice",
+        "voice": {
+          "model": "eleven_turbo_v2_5",
+          "voiceId": "dN8hviqdNrAsEcL57yFj",
+          "provider": "vapi"
+        },
+        "characters": 121
+      },
+      {
+        "cost": 0.03919,
+        "type": "vapi",
+        "minutes": 0.7838,
+        "subType": "normal"
+      },
+      {
+        "cost": 0,
+        "type": "knowledge-base",
+        "model": {
+          "model": "gemini-2.0-flash",
+          "provider": "google"
+        },
+        "promptTokens": 0,
+        "completionTokens": 0
+      },
+      {
+        "cost": 0.0015958,
+        "type": "analysis",
+        "model": {
+          "model": "gemini-2.5-flash",
+          "provider": "google"
+        },
+        "analysisType": "summary",
+        "promptTokens": 236,
+        "completionTokens": 610
+      },
+      {
+        "cost": 0.0008313,
+        "type": "analysis",
+        "model": {
+          "model": "gemini-2.5-flash",
+          "provider": "google"
+        },
+        "analysisType": "successEvaluation",
+        "promptTokens": 2696,
+        "completionTokens": 9
+      }
+    ],
+    "monitor": {
+      "listenUrl": "wss://phone-call-websocket.aws-us-west-2-backend-production1.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885/listen",
+      "controlUrl": "https://phone-call-websocket.aws-us-west-2-backend-production1.vapi.ai/019c5e57-09e6-744f-b8f0-a9ba3fc29885/control"
+    },
+    "transport": {
+      "callSid": "e351f2f7-a797-404d-b100-d5d6a096668b",
+      "provider": "vapi.sip",
+      "sbcCallSid": "646210008-3980098088-1930939723@msc1.382COM.COM",
+      "conversationType": "voice"
+    }
+  },
+  {
+    "id": "019c5e15-c90d-7dd4-9c21-be3ed75bd310",
+    "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+    "phoneNumberId": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+    "type": "inboundPhoneCall",
+    "startedAt": "2026-02-14T21:36:52.185Z",
+    "endedAt": "2026-02-14T21:37:29.223Z",
+    "transcript": "AI: I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need what do you need help with?\nUser: I mean, to talk to somebody about the because I have still have a leak and some of my gutters have fallen off.\nAI: Sorry to hear you're having trouble. I'll get you straight to our service department.\nUser: We need those cut up.\nAI: Sorry to hear you're having trouble.\n",
+    "recordingUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-77542ef0-055e-4767-85ce-67d209edd5aa-mono.wav",
+    "summary": "Here's a summary and analysis of the interaction:\n\n**Summary of Interaction:**\n\nThe user initiated the call to report two significant issues with their LeafFilter system: they still have a leak, and some of their gutters have fallen off. They also mentioned, \"We need those cut up,\" which likely refers to the fallen gutters needing to be removed or cut into pieces for disposal. The AI acknowledged the initial problem and stated it would transfer the user to the service department. However, the AI repeated its apology after the user provided the additional detail about needing the gutters cut up, indicating it did not process this last piece of information. The call was then forwarded by the assistant.\n\n**What is Important to the Caller:**\n\n*   **Resolution of a persistent leak:** This is a primary concern, indicating the LeafFilter system isn't performing its core function.\n*   **Repair/Reinstallation of fallen gutters:** This is a serious structural issue that needs immediate attention.\n*   **Disposal/Removal of fallen gutters:** The user explicitly stated, \"We need those cut up,\" suggesting they want the fallen gutters dealt with, not just left on their property.\n\n**Relevant Information for Agents:**\n\n*   **Customer Service Agent:**\n    *   **Issue Type:** Service request for leak and fallen gutters.\n    *   **Urgency:** High, as fallen gutters pose a safety hazard and leaks can cause property damage.\n    *   **Key Details:** \"Still have a leak,\" \"some of my gutters have fallen off,\" \"We need those cut up.\"\n    *   **Action:** Schedule a service appointment, ensure the technician is aware of both the leak and the fallen/damaged gutters, and the need for removal/disposal.\n*   **In-Home Sales Agent:** (Less relevant for this specific call, but if the issues are unresolvable or lead to a new system, they'd need to know)\n    *   **Context:** Customer has existing LeafFilter, experiencing significant failures (leak, structural failure). This indicates a potential warranty claim or a need for a complete system overhaul if repairs aren't feasible.\n*   **Installation Technician:**\n    *   **Scope of Work:** Investigate and repair leak, reattach/replace fallen gutters, and potentially remove/dispose of damaged gutter sections.\n    *   **Tools/Materials:** Will need leak detection tools, gutter reattachment hardware, potentially new gutter sections, and tools for cutting/removing old gutters.\n\n**Sentiment Detected:**\n\nThe user's sentiment appears to be **concerned and slightly frustrated**. The phrase \"still have a leak\" implies a previous attempt at resolution or an ongoing problem, adding to the frustration. The urgency in their tone (\"We need those cut up\") also suggests a desire for prompt action.\n\n**Ease of Interaction & Frustration/Elevation:**\n\n*   **Ease:** The interaction was **not easy** for the user. While the AI quickly identified the need for the service department, it failed to fully capture all the user's concerns. The repetition of \"Sorry to hear you're having trouble\" after the user provided new, critical information (\"We need those cut up\") indicates a breakdown in the AI's ability to process evolving user input.\n*   **Frustration/Elevation:** There is a clear indication of **frustration**. The user had to reiterate or add details that the AI didn't seem to fully grasp. This lack of understanding from the AI could easily lead to elevation if the user felt unheard or that their full problem wasn't being conveyed to the human agent.\n\n**Resolution Status:**\n\nThis call was **not resolved**.\n\n**Justification:**\n\nThe call was merely **forwarded** (`assistant-forwarded-call`). The AI did not provide any solution, schedule an appointment, or confirm understanding of all the user's issues. The user's problems (leak, fallen gutters, need for disposal) remain unaddressed at the end of this interaction. The user will need to repeat their concerns to the human agent, potentially leading to further frustration.",
+    "createdAt": "2026-02-14T21:36:51.981Z",
+    "updatedAt": "2026-02-14T21:37:38.686Z",
+    "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+    "cost": 0.0486,
+    "customer": {
+      "number": "+14423568474",
+      "sipUri": "sip:+14423568474@44.229.228.186:5060"
+    },
+    "status": "ended",
+    "endedReason": "assistant-forwarded-call",
+    "messages": [
+      {
+        "role": "system",
+        "time": 1771105012117,
+        "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+        "secondsFromStart": 0
+      },
+      {
+        "role": "bot",
+        "time": 1771105013189,
+        "source": "",
+        "endTime": 1771105023509.001,
+        "message": "I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+        "duration": 8640,
+        "secondsFromStart": 1.004
+      },
+      {
+        "role": "user",
+        "time": 1771105025779,
+        "endTime": 1771105034349,
+        "message": "I mean, to talk to somebody about the because I have still have a leak and some of my gutters have fallen off.",
+        "duration": 5920.0009765625,
+        "metadata": {
+          "wordLevelConfidence": [
+            {
+              "end": 13.79,
+              "word": "i",
+              "start": 13.55,
+              "confidence": 0.9614258,
+              "punctuated_word": "I"
+            },
+            {
+              "end": 14.030001,
+              "word": "mean",
+              "start": 13.79,
+              "confidence": 0.89501953,
+              "punctuated_word": "mean,"
+            }
+          ]
+        },
+        "secondsFromStart": 13.55
+      },
+      {
+        "role": "tool_calls",
+        "time": 1771105034631,
+        "message": "",
+        "toolCalls": [
+          {
+            "id": "call_Fu6jOxLBQlsPAp6NLtvC6bTw",
+            "type": "function",
+            "function": {
+              "name": "transfer_intent",
+              "arguments": "{\"destination\": \"+18774133896\"}"
+            }
+          }
+        ],
+        "secondsFromStart": 22.446
+      },
+      {
+        "role": "bot",
+        "time": 1771105035889,
+        "source": "",
+        "endTime": 1771105039589,
+        "message": "Sorry to hear you're having trouble. I'll get you straight to our service department.",
+        "duration": 3440,
+        "secondsFromStart": 23.704
+      },
+      {
+        "name": "transfer_intent",
+        "role": "tool_call_result",
+        "time": 1771105038971,
+        "result": "Transfer initiated.",
+        "toolCallId": "call_Fu6jOxLBQlsPAp6NLtvC6bTw",
+        "secondsFromStart": 26.786
+      },
+      {
+        "role": "user",
+        "time": 1771105045999,
+        "endTime": 1771105047199,
+        "message": "We need those cut up.",
+        "duration": 1200,
+        "metadata": {
+          "wordLevelConfidence": [
+            {
+              "end": 34.010002,
+              "word": "we",
+              "start": 33.77,
+              "confidence": 0.90478516,
+              "punctuated_word": "We"
+            },
+            {
+              "end": 34.170002,
+              "word": "need",
+              "start": 34.010002,
+              "confidence": 0.99609375,
+              "punctuated_word": "need"
+            },
+            {
+              "end": 34.41,
+              "word": "those",
+              "start": 34.170002,
+              "confidence": 0.9970703,
+              "punctuated_word": "those"
+            },
+            {
+              "end": 34.73,
+              "word": "cut",
+              "start": 34.41,
+              "confidence": 0.99121094,
+              "punctuated_word": "cut"
+            },
+            {
+              "end": 34.97,
+              "word": "up",
+              "start": 34.73,
+              "confidence": 0.7290039,
+              "punctuated_word": "up."
+            }
+          ]
+        },
+        "secondsFromStart": 33.77
+      },
+      {
+        "role": "tool_calls",
+        "time": 1771105047410,
+        "message": "",
+        "toolCalls": [
+          {
+            "id": "call_VYUdtgl1yOWDGiETn78k6fb0",
+            "type": "function",
+            "function": {
+              "name": "transfer_intent",
+              "arguments": "{\"destination\": \"+18774133896\"}"
+            }
+          }
+        ],
+        "secondsFromStart": 35.225
+      },
+      {
+        "role": "bot",
+        "time": 1771105048449,
+        "source": "",
+        "endTime": 1771105049969,
+        "message": "Sorry to hear you're having trouble.",
+        "duration": 1520,
+        "secondsFromStart": 36.264
+      }
+    ],
+    "stereoRecordingUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-3f44d5c2-f987-4d77-bcbf-b96c51f4ee86-stereo.wav",
+    "costBreakdown": {
+      "transport": 0,
+      "stt": 0.0065,
+      "llm": 0.0012,
+      "tts": 0.001,
+      "vapi": 0.0309,
+      "chat": 0,
+      "total": 0.0486,
+      "llmPromptTokens": 7880,
+      "llmCompletionTokens": 65,
+      "llmCachedPromptTokens": 3840,
+      "ttsCharacters": 19,
+      "analysisCostBreakdown": {
+        "summary": 0.0082,
+        "structuredData": 0,
+        "structuredOutput": 0,
+        "successEvaluation": 0.0008,
+        "summaryPromptTokens": 440,
+        "summaryCompletionTokens": 1208,
+        "summaryCachedPromptTokens": 0,
+        "structuredDataPromptTokens": 0,
+        "structuredOutputPromptTokens": 0,
+        "successEvaluationPromptTokens": 2685,
+        "structuredDataCompletionTokens": 0,
+        "structuredDataCachedPromptTokens": 0,
+        "structuredOutputCompletionTokens": 0,
+        "successEvaluationCompletionTokens": 10,
+        "structuredOutputCachedPromptTokens": 0,
+        "successEvaluationCachedPromptTokens": 0
+      },
+      "knowledgeBaseCost": 0,
+      "voicemailDetectionCost": 0
+    },
+    "phoneCallProvider": "vapi",
+    "phoneCallProviderId": "04684ddd-b909-4a84-99d6-0ce254a752a3",
+    "forwardedPhoneNumber": "+18774133896",
+    "phoneCallTransport": "sip",
+    "phoneCallProviderDetails": {
+      "sip": {
+        "raw": "INVITE sip:3078408336@172.30.48.49:5060 SIP/2.0\r\nVia: SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bK3tm4v035aZvtS;received=172.31.57.86\r\nMax-Forwards: 70\r\nFrom: <sip:+14423568474;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=rj7mSt6jmycpc\r\nTo: <sip:3078408336@192.168.250.45>\r\nCall-ID: 1dbf0881-8490-123f-b9b3-0ec7040a32ad\r\nCSeq: 110998713 INVITE\r\nContact: <sip:172.31.57.86:5060>\r\nAccept: application/sdp\r\nAllow: PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL\r\nSupported: 100rel, timer\r\nMin-SE: 600\r\nPrivacy: none\r\nContent-Type: application/sdp\r\nContent-Length: 305\r\nX-Account-Sid: c033b672-5b99-42ae-9ce2-b231e9a522fb\r\nX-CID: 646102391-3980093811-1685394970@msc1.382COM.COM\r\nX-Forwarded-For: 64.125.111.10\r\nX-Originating-Carrier: 382com\r\nX-Voip-Carrier-Sid: a5569621-84ac-49cc-a8b8-11c7fb96b905\r\nX-Application-Sid: 79d078c8-76b2-452a-99e0-ddd5abbf6269\r\nIdentity: eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTA1MDExLCJvcmlnIjp7InRuIjoiMTQ0MjM1Njg0NzQifSwib3JpZ2lkIjoiNDYyMDQ1ZWMtMDllZC0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0.z26ah5QVQ3Ppyk7Dt5Q_zhWkpMb5Sp0Rw3vkOKx-VrLDwD_Q5BJyfl07wpWRoH032Vcd9ggxh6w6ycgS5SH1Fw;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"\r\nP-Asserted-Identity: <sip:+14423568474@207.223.78.171:5060>\r\n\r\nv=0\r\no=msc1 752779 91116 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 49726 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:49727\r\n",
+        "uri": "sip:3078408336@172.30.48.49:5060",
+        "body": "v=0\r\no=msc1 752779 91116 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 49726 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:49727\r\n",
+        "method": "INVITE",
+        "headers": {
+          "to": "<sip:+13078408336@192.168.250.45>",
+          "via": "SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bK3tm4v035aZvtS;received=172.31.57.86",
+          "cseq": "110998713 INVITE",
+          "from": "<sip:+14423568474;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=rj7mSt6jmycpc",
+          "X-CID": "646102391-3980093811-1685394970@msc1.382COM.COM",
+          "allow": "PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL",
+          "accept": "application/sdp",
+          "min-se": "600",
+          "call-id": "1dbf0881-8490-123f-b9b3-0ec7040a32ad",
+          "contact": "<sip:172.31.57.86:5060>",
+          "privacy": "none",
+          "identity": "eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTA1MDExLCJvcmlnIjp7InRuIjoiMTQ0MjM1Njg0NzQifSwib3JpZ2lkIjoiNDYyMDQ1ZWMtMDllZC0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0.z26ah5QVQ3Ppyk7Dt5Q_zhWkpMb5Sp0Rw3vkOKx-VrLDwD_Q5BJyfl07wpWRoH032Vcd9ggxh6w6ycgS5SH1Fw;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"",
+          "supported": "100rel, timer",
+          "content-type": "application/sdp",
+          "max-forwards": "70",
+          "X-Account-Sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+          "content-length": "305",
+          "X-Forwarded-For": "64.125.111.10",
+          "X-Application-Sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+          "X-Voip-Carrier-Sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+          "p-asserted-identity": "<sip:+14423568474@207.223.78.171:5060>",
+          "X-Originating-Carrier": "382com"
+        },
+        "payload": [
+          {
+            "type": "application/sdp",
+            "content": "v=0\r\no=msc1 752779 91116 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 49726 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:49727\r\n"
+          }
+        ],
+        "version": "2.0"
+      },
+      "sbcCallId": "646102391-3980093811-1685394970@msc1.382COM.COM"
+    },
+    "assistantOverrides": {
+      "variableValues": {
+        "cid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      }
+    },
+    "analysis": {
+      "summary": "Here's a summary and analysis of the interaction:\n\n**Summary of Interaction:**\n\nThe user initiated the call to report two significant issues with their LeafFilter system: they still have a leak, and some of their gutters have fallen off. They also mentioned, \"We need those cut up,\" which likely refers to the fallen gutters needing to be removed or cut into pieces for disposal. The AI acknowledged the initial problem and stated it would transfer the user to the service department. However, the AI repeated its apology after the user provided the additional detail about needing the gutters cut up, indicating it did not process this last piece of information. The call was then forwarded by the assistant.\n\n**What is Important to the Caller:**\n\n*   **Resolution of a persistent leak:** This is a primary concern, indicating the LeafFilter system isn't performing its core function.\n*   **Repair/Reinstallation of fallen gutters:** This is a serious structural issue that needs immediate attention.\n*   **Disposal/Removal of fallen gutters:** The user explicitly stated, \"We need those cut up,\" suggesting they want the fallen gutters dealt with, not just left on their property.\n\n**Relevant Information for Agents:**\n\n*   **Customer Service Agent:**\n    *   **Issue Type:** Service request for leak and fallen gutters.\n    *   **Urgency:** High, as fallen gutters pose a safety hazard and leaks can cause property damage.\n    *   **Key Details:** \"Still have a leak,\" \"some of my gutters have fallen off,\" \"We need those cut up.\"\n    *   **Action:** Schedule a service appointment, ensure the technician is aware of both the leak and the fallen/damaged gutters, and the need for removal/disposal.\n*   **In-Home Sales Agent:** (Less relevant for this specific call, but if the issues are unresolvable or lead to a new system, they'd need to know)\n    *   **Context:** Customer has existing LeafFilter, experiencing significant failures (leak, structural failure). This indicates a potential warranty claim or a need for a complete system overhaul if repairs aren't feasible.\n*   **Installation Technician:**\n    *   **Scope of Work:** Investigate and repair leak, reattach/replace fallen gutters, and potentially remove/dispose of damaged gutter sections.\n    *   **Tools/Materials:** Will need leak detection tools, gutter reattachment hardware, potentially new gutter sections, and tools for cutting/removing old gutters.\n\n**Sentiment Detected:**\n\nThe user's sentiment appears to be **concerned and slightly frustrated**. The phrase \"still have a leak\" implies a previous attempt at resolution or an ongoing problem, adding to the frustration. The urgency in their tone (\"We need those cut up\") also suggests a desire for prompt action.\n\n**Ease of Interaction & Frustration/Elevation:**\n\n*   **Ease:** The interaction was **not easy** for the user. While the AI quickly identified the need for the service department, it failed to fully capture all the user's concerns. The repetition of \"Sorry to hear you're having trouble\" after the user provided new, critical information (\"We need those cut up\") indicates a breakdown in the AI's ability to process evolving user input.\n*   **Frustration/Elevation:** There is a clear indication of **frustration**. The user had to reiterate or add details that the AI didn't seem to fully grasp. This lack of understanding from the AI could easily lead to elevation if the user felt unheard or that their full problem wasn't being conveyed to the human agent.\n\n**Resolution Status:**\n\nThis call was **not resolved**.\n\n**Justification:**\n\nThe call was merely **forwarded** (`assistant-forwarded-call`). The AI did not provide any solution, schedule an appointment, or confirm understanding of all the user's issues. The user's problems (leak, fallen gutters, need for disposal) remain unaddressed at the end of this interaction. The user will need to repeat their concerns to the human agent, potentially leading to further frustration.",
+      "successEvaluation": "false"
+    },
+    "artifact": {
+      "recordingUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-77542ef0-055e-4767-85ce-67d209edd5aa-mono.wav",
+      "stereoRecordingUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-3f44d5c2-f987-4d77-bcbf-b96c51f4ee86-stereo.wav",
+      "recording": {
+        "stereoUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-3f44d5c2-f987-4d77-bcbf-b96c51f4ee86-stereo.wav",
+        "mono": {
+          "combinedUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-77542ef0-055e-4767-85ce-67d209edd5aa-mono.wav",
+          "assistantUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-d348e81f-e147-48c0-a027-90931f9db2ed-mono.wav",
+          "customerUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105051811-a6661d1d-8b6c-4657-9a6b-8d2870367cd1-mono.wav"
+        }
+      },
+      "messages": [
+        {
+          "role": "system",
+          "time": 1771105012117,
+          "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "secondsFromStart": 0
+        },
+        {
+          "role": "bot",
+          "time": 1771105013189,
+          "source": "",
+          "endTime": 1771105023509.001,
+          "message": "I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+          "duration": 8640,
+          "secondsFromStart": 1.004
+        },
+        {
+          "role": "user",
+          "time": 1771105025779,
+          "endTime": 1771105034349,
+          "message": "I mean, to talk to somebody about the because I have still have a leak and some of my gutters have fallen off.",
+          "duration": 5920.0009765625,
+          "metadata": {
+            "wordLevelConfidence": [
+              {
+                "end": 13.79,
+                "word": "i",
+                "start": 13.55,
+                "confidence": 0.9614258,
+                "punctuated_word": "I"
+              },
+              {
+                "end": 14.030001,
+                "word": "mean",
+                "start": 13.79,
+                "confidence": 0.89501953,
+                "punctuated_word": "mean,"
+              }
+            ]
+          },
+          "secondsFromStart": 13.55
+        },
+        {
+          "role": "tool_calls",
+          "time": 1771105034631,
+          "message": "",
+          "toolCalls": [
+            {
+              "id": "call_Fu6jOxLBQlsPAp6NLtvC6bTw",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133896\"}"
+              }
+            }
+          ],
+          "secondsFromStart": 22.446
+        },
+        {
+          "role": "bot",
+          "time": 1771105035889,
+          "source": "",
+          "endTime": 1771105039589,
+          "message": "Sorry to hear you're having trouble. I'll get you straight to our service department.",
+          "duration": 3440,
+          "secondsFromStart": 23.704
+        },
+        {
+          "name": "transfer_intent",
+          "role": "tool_call_result",
+          "time": 1771105038971,
+          "result": "Transfer initiated.",
+          "toolCallId": "call_Fu6jOxLBQlsPAp6NLtvC6bTw",
+          "secondsFromStart": 26.786
+        },
+        {
+          "role": "user",
+          "time": 1771105045999,
+          "endTime": 1771105047199,
+          "message": "We need those cut up.",
+          "duration": 1200,
+          "metadata": {
+            "wordLevelConfidence": [
+              {
+                "end": 34.010002,
+                "word": "we",
+                "start": 33.77,
+                "confidence": 0.90478516,
+                "punctuated_word": "We"
+              },
+              {
+                "end": 34.170002,
+                "word": "need",
+                "start": 34.010002,
+                "confidence": 0.99609375,
+                "punctuated_word": "need"
+              },
+              {
+                "end": 34.41,
+                "word": "those",
+                "start": 34.170002,
+                "confidence": 0.9970703,
+                "punctuated_word": "those"
+              },
+              {
+                "end": 34.73,
+                "word": "cut",
+                "start": 34.41,
+                "confidence": 0.99121094,
+                "punctuated_word": "cut"
+              },
+              {
+                "end": 34.97,
+                "word": "up",
+                "start": 34.73,
+                "confidence": 0.7290039,
+                "punctuated_word": "up."
+              }
+            ]
+          },
+          "secondsFromStart": 33.77
+        },
+        {
+          "role": "tool_calls",
+          "time": 1771105047410,
+          "message": "",
+          "toolCalls": [
+            {
+              "id": "call_VYUdtgl1yOWDGiETn78k6fb0",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133896\"}"
+              }
+            }
+          ],
+          "secondsFromStart": 35.225
+        },
+        {
+          "role": "bot",
+          "time": 1771105048449,
+          "source": "",
+          "endTime": 1771105049969,
+          "message": "Sorry to hear you're having trouble.",
+          "duration": 1520,
+          "secondsFromStart": 36.264
+        }
+      ],
+      "messagesOpenAIFormatted": [
+        {
+          "content": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "role": "system"
+        },
+        {
+          "content": "I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need what do you need help with?",
+          "role": "assistant"
+        },
+        {
+          "content": "I mean, to talk to somebody about the because I have still have a leak and some of my gutters have fallen off.",
+          "role": "user"
+        },
+        {
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "id": "call_Fu6jOxLBQlsPAp6NLtvC6bTw",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133896\"}"
+              }
+            }
+          ]
+        },
+        {
+          "content": "Transfer initiated.",
+          "role": "tool",
+          "tool_call_id": "call_Fu6jOxLBQlsPAp6NLtvC6bTw"
+        },
+        {
+          "content": "Sorry to hear you're having trouble. I'll get you straight to our service department.",
+          "role": "assistant"
+        },
+        {
+          "content": "We need those cut up.",
+          "role": "user"
+        },
+        {
+          "role": "assistant",
+          "tool_calls": [
+            {
+              "id": "call_VYUdtgl1yOWDGiETn78k6fb0",
+              "type": "function",
+              "function": {
+                "name": "transfer_intent",
+                "arguments": "{\"destination\": \"+18774133896\"}"
+              }
+            }
+          ]
+        },
+        {
+          "content": "Tool Result Still Pending But Proceed Further If Possible.",
+          "role": "tool",
+          "tool_call_id": "call_VYUdtgl1yOWDGiETn78k6fb0"
+        },
+        {
+          "content": "Sorry to hear you're having trouble.",
+          "role": "assistant"
+        }
+      ],
+      "transcript": "AI: I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need what do you need help with?\nUser: I mean, to talk to somebody about the because I have still have a leak and some of my gutters have fallen off.\nAI: Sorry to hear you're having trouble. I'll get you straight to our service department.\nUser: We need those cut up.\nAI: Sorry to hear you're having trouble.\n",
+      "pcapUrl": "https://storage.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310-1771105052025-f2ced4e6-f8d2-4c04-b6e8-6cedb9be9bb6-sip.pcap",
+      "logUrl": "https://calllogs.vapi.ai/f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6/019c5e15-c90d-7dd4-9c21-be3ed75bd310-061e3197-09d4-4186-852f-2ef6cd929d35-1771105058263.jsonl.gz",
+      "nodes": [],
+      "variableValues": {
+        "cid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 9:36 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "9:36 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+14423568474",
+          "sipUri": "sip:+14423568474@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "04684ddd-b909-4a84-99d6-0ce254a752a3",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 9:36 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "variables": {
+        "cid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 9:36 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "9:36 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+14423568474",
+          "sipUri": "sip:+14423568474@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "04684ddd-b909-4a84-99d6-0ce254a752a3",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 9:36 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "performanceMetrics": {
+        "turnLatencies": [
+          {
+            "modelLatency": 0,
+            "voiceLatency": 0,
+            "transcriberLatency": 742,
+            "endpointingLatency": 105,
+            "turnLatency": 2100
+          },
+          {
+            "modelLatency": 585,
+            "voiceLatency": 0,
+            "transcriberLatency": 598,
+            "endpointingLatency": 100,
+            "turnLatency": 1628
+          }
+        ],
+        "modelLatencyAverage": 292.5,
+        "voiceLatencyAverage": 0,
+        "transcriberLatencyAverage": 670,
+        "endpointingLatencyAverage": 102.5,
+        "turnLatencyAverage": 1864,
+        "fromTransportLatencyAverage": 20,
+        "toTransportLatencyAverage": 20
+      },
+      "scorecards": {},
+      "transfers": []
+    },
+    "destination": {
+      "type": "number",
+      "number": "+18774133896",
+      "message": "Sorry to hear you're having trouble. I'll get you straight to our service department.",
+      "callerId": "{{customer.number}}",
+      "description": "SERVICE ROUTE: Run this when the caller is an existing customer needing help with something they already purchased.  such as someone who already has a completed installation and is experiencing a performance or functional issue with the system.\n\n\nThey may be calling about:\n• Leaking\n• Clogging\n• Water overflow\n• Something not working correctly\n• Needing a service technician\n• Quality concerns about completed work\n• Wants a refund\n\nThese are post-installation service needs requiring a repair visit.\n\nExample Phrases:\n“It’s leaking.”\n“It’s clogged.”\n“My gutters aren’t working.”\n“Something wasn’t installed correctly.”\n“I need someone to come fix this.”\n\"I want a refund\"\n\nif they express an urgent need such as: \n“Urgent,” “Emergency,” “Right now,”\nRespond with empathy and acknowledge that is sounds urgent. \n",
+      "transferPlan": {
+        "mode": "blind-transfer-add-summary-to-sip-header",
+        "sipVerb": "refer"
+      },
+      "numberE164CheckEnabled": true
+    },
+    "costs": [
+      {
+        "cost": 0.00606,
+        "type": "analysis",
+        "model": {
+          "model": "claude-sonnet-4-5-20250929",
+          "provider": "anthropic"
+        },
+        "analysisType": "summary",
+        "promptTokens": 215,
+        "completionTokens": 361
+      },
+      {
+        "cost": 0.0064526466666666666,
+        "type": "transcriber",
+        "minutes": 0.6591666666666666,
+        "transcriber": {
+          "model": "nova-3-general",
+          "provider": "deepgram"
+        }
+      },
+      {
+        "cost": 0.001236,
+        "type": "model",
+        "model": {
+          "model": "gpt-5-mini",
+          "provider": "openai"
+        },
+        "promptTokens": 7880,
+        "completionTokens": 65,
+        "cachedPromptTokens": 3840
+      },
+      {
+        "cost": 0.00095,
+        "type": "voice",
+        "voice": {
+          "model": "eleven_turbo_v2_5",
+          "voiceId": "dN8hviqdNrAsEcL57yFj",
+          "provider": "vapi"
+        },
+        "characters": 19
+      },
+      {
+        "cost": 0.030865,
+        "type": "vapi",
+        "minutes": 0.6173,
+        "subType": "normal"
+      },
+      {
+        "cost": 0,
+        "type": "knowledge-base",
+        "model": {
+          "model": "gemini-2.0-flash",
+          "provider": "google"
+        },
+        "promptTokens": 0,
+        "completionTokens": 0
+      },
+      {
+        "cost": 0.002185,
+        "type": "analysis",
+        "model": {
+          "model": "gemini-2.5-flash",
+          "provider": "google"
+        },
+        "analysisType": "summary",
+        "promptTokens": 225,
+        "completionTokens": 847
+      },
+      {
+        "cost": 0.0008305,
+        "type": "analysis",
+        "model": {
+          "model": "gemini-2.5-flash",
+          "provider": "google"
+        },
+        "analysisType": "successEvaluation",
+        "promptTokens": 2685,
+        "completionTokens": 10
+      }
+    ],
+    "monitor": {
+      "listenUrl": "wss://phone-call-websocket.aws-us-west-2-backend-production1.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310/listen",
+      "controlUrl": "https://phone-call-websocket.aws-us-west-2-backend-production1.vapi.ai/019c5e15-c90d-7dd4-9c21-be3ed75bd310/control"
+    },
+    "transport": {
+      "callSid": "04684ddd-b909-4a84-99d6-0ce254a752a3",
+      "provider": "vapi.sip",
+      "sbcCallSid": "646102391-3980093811-1685394970@msc1.382COM.COM",
+      "conversationType": "voice"
+    }
+  },
+  {
+    "id": "019c5de2-13da-7885-98ef-2a76b65604da",
+    "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+    "phoneNumberId": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+    "type": "inboundPhoneCall",
+    "startedAt": "2026-02-14T20:40:23.431Z",
+    "endedAt": "2026-02-14T20:41:01.318Z",
+    "transcript": "AI: I'm Liam, an automated assistant here to get you to the Right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\n",
+    "recordingUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-13b98711-5603-4c6b-94c2-2f61c701a4e4-mono.wav",
+    "summary": "",
+    "createdAt": "2026-02-14T20:40:23.258Z",
+    "updatedAt": "2026-02-14T20:41:04.757Z",
+    "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+    "cost": 0.0382,
+    "customer": {
+      "number": "+12252026314",
+      "sipUri": "sip:+12252026314@44.229.228.186:5060"
+    },
+    "status": "ended",
+    "endedReason": "silence-timed-out",
+    "messages": [
+      {
+        "role": "system",
+        "time": 1771101623357,
+        "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+        "secondsFromStart": 0
+      },
+      {
+        "role": "bot",
+        "time": 1771101624365,
+        "source": "",
+        "endTime": 1771101632065,
+        "message": "I'm Liam, an automated assistant here to get you to the Right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?",
+        "duration": 6480,
+        "secondsFromStart": 0.934
+      }
+    ],
+    "stereoRecordingUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-9e568659-1396-41f8-8780-a91e6041f5c7-stereo.wav",
+    "costBreakdown": {
+      "transport": 0,
+      "stt": 0.0066,
+      "llm": 0,
+      "tts": 0,
+      "vapi": 0.0316,
+      "chat": 0,
+      "total": 0.0382,
+      "llmPromptTokens": 0,
+      "llmCompletionTokens": 0,
+      "llmCachedPromptTokens": 0,
+      "ttsCharacters": 0,
+      "analysisCostBreakdown": {
+        "summary": 0,
+        "structuredData": 0,
+        "structuredOutput": 0,
+        "successEvaluation": 0,
+        "summaryPromptTokens": 0,
+        "summaryCompletionTokens": 0,
+        "summaryCachedPromptTokens": 0,
+        "structuredDataPromptTokens": 0,
+        "structuredOutputPromptTokens": 0,
+        "successEvaluationPromptTokens": 0,
+        "structuredDataCompletionTokens": 0,
+        "structuredDataCachedPromptTokens": 0,
+        "structuredOutputCompletionTokens": 0,
+        "successEvaluationCompletionTokens": 0,
+        "structuredOutputCachedPromptTokens": 0,
+        "successEvaluationCachedPromptTokens": 0
+      },
+      "knowledgeBaseCost": 0,
+      "voicemailDetectionCost": 0
+    },
+    "phoneCallProvider": "vapi",
+    "phoneCallProviderId": "900a36a8-b0b2-4b5d-a312-96fa635e5e53",
+    "phoneCallTransport": "sip",
+    "phoneCallProviderDetails": {
+      "sip": {
+        "raw": "INVITE sip:3078408336@172.30.21.159:5060 SIP/2.0\r\nVia: SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bKaSt5mH2Np8Hrj;received=172.31.57.86\r\nMax-Forwards: 70\r\nFrom: <sip:+12252026314;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=tt1QKBt00gctH\r\nTo: <sip:3078408336@192.168.250.45>\r\nCall-ID: 39f7b793-8488-123f-b9b3-0ec7040a32ad\r\nCSeq: 110997019 INVITE\r\nContact: <sip:172.31.57.86:5060>\r\nAccept: application/sdp\r\nAllow: PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL\r\nSupported: 100rel, timer\r\nMin-SE: 600\r\nPrivacy: none\r\nContent-Type: application/sdp\r\nContent-Length: 306\r\nX-Account-Sid: c033b672-5b99-42ae-9ce2-b231e9a522fb\r\nX-CID: 646011989-3980090423-771340218@msc1.382COM.COM\r\nX-Forwarded-For: 64.125.111.10\r\nX-Originating-Carrier: 382com\r\nX-Voip-Carrier-Sid: a5569621-84ac-49cc-a8b8-11c7fb96b905\r\nX-Application-Sid: 79d078c8-76b2-452a-99e0-ddd5abbf6269\r\nIdentity: eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTAxNjIyLCJvcmlnIjp7InRuIjoiMTIyNTIwMjYzMTQifSwib3JpZ2lkIjoiNjI1NTZjNWUtMDllNS0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0._AsLI6aKt6c-o2rLQFeTeI9cckWjbBiSnbp1l_ViFqSmGp4qriPyTDw4_nN9TT9GcrFkixNHUHfg93_2g0C4Iw;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"\r\nP-Asserted-Identity: <sip:+12252026314@207.223.78.171:5060>\r\n\r\nv=0\r\no=msc1 694079 754973 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 40046 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:40047\r\n",
+        "uri": "sip:3078408336@172.30.21.159:5060",
+        "body": "v=0\r\no=msc1 694079 754973 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 40046 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:40047\r\n",
+        "method": "INVITE",
+        "headers": {
+          "to": "<sip:+13078408336@192.168.250.45>",
+          "via": "SIP/2.0/UDP 44.229.228.186;rport=5060;branch=z9hG4bKaSt5mH2Np8Hrj;received=172.31.57.86",
+          "cseq": "110997019 INVITE",
+          "from": "<sip:+12252026314;verstat=TN-Validation-Passed@44.229.228.186:5060>;tag=tt1QKBt00gctH",
+          "X-CID": "646011989-3980090423-771340218@msc1.382COM.COM",
+          "allow": "PUBLISH, MESSAGE, UPDATE, PRACK, SUBSCRIBE, REFER, INFO, NOTIFY, REGISTER, OPTIONS, BYE, INVITE, ACK, CANCEL",
+          "accept": "application/sdp",
+          "min-se": "600",
+          "call-id": "39f7b793-8488-123f-b9b3-0ec7040a32ad",
+          "contact": "<sip:172.31.57.86:5060>",
+          "privacy": "none",
+          "identity": "eyJhbGciOiJFUzI1NiIsInBwdCI6InNoYWtlbiIsInR5cCI6InBhc3Nwb3J0IiwieDV1IjoiaHR0cHM6Ly9jci5zYW5zYXkuY29tLzU5NkovNDI5QzdDNzA3MTFFMzgyMEYwQjhFMURFQUU2RkYzMjYyMjY0RjNBQi5wZW0ifQ.eyJhdHRlc3QiOiJCIiwiZGVzdCI6eyJ0biI6WyIxMzA3ODQwODMzNiJdfSwiaWF0IjoxNzcxMTAxNjIyLCJvcmlnIjp7InRuIjoiMTIyNTIwMjYzMTQifSwib3JpZ2lkIjoiNjI1NTZjNWUtMDllNS0xMWYxLWI2MDQtYmRjMWJlZDI4ODg4In0._AsLI6aKt6c-o2rLQFeTeI9cckWjbBiSnbp1l_ViFqSmGp4qriPyTDw4_nN9TT9GcrFkixNHUHfg93_2g0C4Iw;info=<https://cr.sansay.com/596J/429C7C70711E3820F0B8E1DEAE6FF3262264F3AB.pem>;alg=ES256;ppt=\"shaken\"",
+          "supported": "100rel, timer",
+          "content-type": "application/sdp",
+          "max-forwards": "70",
+          "X-Account-Sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+          "content-length": "306",
+          "X-Forwarded-For": "64.125.111.10",
+          "X-Application-Sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+          "X-Voip-Carrier-Sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+          "p-asserted-identity": "<sip:+12252026314@207.223.78.171:5060>",
+          "X-Originating-Carrier": "382com"
+        },
+        "payload": [
+          {
+            "type": "application/sdp",
+            "content": "v=0\r\no=msc1 694079 754973 IN IP4 172.30.42.239\r\ns=sip call\r\nc=IN IP4 172.30.42.239\r\nt=0 0\r\nm=audio 40046 RTP/AVP 0 8 18 101\r\na=maxptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:18 G729/8000\r\na=fmtp:18 annexb=no\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=rtcp:40047\r\n"
+          }
+        ],
+        "version": "2.0"
+      },
+      "sbcCallId": "646011989-3980090423-771340218@msc1.382COM.COM"
+    },
+    "assistantOverrides": {
+      "variableValues": {
+        "cid": "646011989-3980090423-771340218@msc1.382COM.COM",
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      }
+    },
+    "analysis": {},
+    "artifact": {
+      "recordingUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-13b98711-5603-4c6b-94c2-2f61c701a4e4-mono.wav",
+      "stereoRecordingUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-9e568659-1396-41f8-8780-a91e6041f5c7-stereo.wav",
+      "recording": {
+        "stereoUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-9e568659-1396-41f8-8780-a91e6041f5c7-stereo.wav",
+        "mono": {
+          "combinedUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-13b98711-5603-4c6b-94c2-2f61c701a4e4-mono.wav",
+          "assistantUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-4d53aee8-0774-4b88-aa3a-91cab06800a0-mono.wav",
+          "customerUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101663839-d23bd6eb-264c-4bbd-a65a-45f64bdb5802-mono.wav"
+        }
+      },
+      "messages": [
+        {
+          "role": "system",
+          "time": 1771101623357,
+          "message": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "secondsFromStart": 0
+        },
+        {
+          "role": "bot",
+          "time": 1771101624365,
+          "source": "",
+          "endTime": 1771101632065,
+          "message": "I'm Liam, an automated assistant here to get you to the Right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?",
+          "duration": 6480,
+          "secondsFromStart": 0.934
+        }
+      ],
+      "messagesOpenAIFormatted": [
+        {
+          "content": "# LIAM v1.0b2.12_v1 - LeafFilter Call Router\n\n## YOUR TEXT OUTPUT = SPOKEN WORDS\nEverything you write in your text response is read aloud to the caller over the phone.\nTool calls are separate from your text response — they are never read aloud.\nYour text response must ONLY contain natural human speech. Never include function names, tool parameters, phone numbers, destinations, or any routing data in your text response. Those belong exclusively in tool calls.\n\n## TRANSFER BEHAVIOR (READ FIRST)\n\n### WHAT TO DO WHEN TRANSFERRING\n1. Determine the correct destination based on caller intent\n2. Execute the transfer action silently by calling the transfer_intent tool — EVERY route MUST end with an actual tool call\n3. NEVER describe the transfer or say you are routing without also invoking the tool in the same turn\n4. If you fail to call the tool, the caller is left waiting forever — this is a critical failure\n\n### FORBIDDEN IN YOUR SPEECH (your text response)\n- Tool names, function names, parameter names, or tool call syntax of any kind (e.g. \"transfer_intent\", \"destination\", \"functions\")\n- Phone numbers, digits, or numeric sequences — never say numbers like \"8 7 7 4 1 3 7 8 4 8\" or any variation\n- Announcing transfers before doing them (just do it)\n- Any description of internal actions or routing logic\n- Prefer saying \"OR\" instead of \"slash\" (right: this or that; wrong: this slash that); your text becomes speech and must sound natural\n- Do not say things that a human would not say on a call, this includes technical details like tool calls or reasoning\n- If you catch yourself about to write a tool call format, STOP — that goes in the tool call, not in your text\n\n### CORRECT vs INCORRECT\nCORRECT: Empty text response + tool call to transfer (caller hears nothing, transfer just happens)\nCORRECT: Brief natural phrase like \"One moment.\" + tool call to transfer\nWRONG: \"Functions. Transfer intent destination, 8 7 7 4 1 3 7 8 4 8\" — this reads tool call data as speech\nWRONG: \"Transfer intent plus one eight seven seven...\" — same problem\nWRONG: \"I will transfer you now\" then not actually calling the tool\nWRONG: Reading any internal identifiers, destinations, or phone numbers out loud\n\n## ABSOLUTE RULES\n1. YOU ALREADY DID GREET AT THE START, even if you don't have it in your history, you already said \"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\"\n2. When intent is clear - transfer immediately, no extra questions\n3. Always say \"we\" when referring to LeafFilter\n4. DO NOT answer general questions - just clarify and route\n\n## GREETING (ONLY when no user messages)\n\"I'm Liam, an automated assistant here to get you to the right LeafFilter team instantly. You can speak to me just like a human—what do you need help with?\"\nIf interrupted during greeting, stop talking and let the user speak.\n\n## ROUTING - TRANSFER IMMEDIATELY WHEN INTENT MATCHES\n\nESCALATION — HIGHEST PRIORITY, CHECK THIS BEFORE ALL OTHER INTENTS:\nRoute to ESCALATION if ANY of the following apply:\n- Caller sounds angry, upset, mad, frustrated\n- Caller mentions a complaint, or wants a manager/supervisor/human\n- Caller EXPLICITLY asks to opt out, be removed, or stop contact. This includes ALL of these phrases and anything similar:\n  \"don't call me\" / \"do not call me anymore\" / \"stop calling\" / \"remove my info\" / \"remove my information\" / \"delete my information\" / \"delete my data\" / \"take me off your list\" / \"opt out\" / \"remove my number\" / \"remove my contact\" / \"I don't want calls\" / \"unsubscribe\"\n\nIMPORTANT: These phrases must ALWAYS route to ESCALATION — NEVER to BILLING, MAIN OFFICE, or any other destination.\nIMPORTANT: \"remove\" + \"info/information/data/number/contact\" = ESCALATION, not BILLING.\nIMPORTANT: Do NOT confuse data-removal/opt-out requests with billing or account inquiries.\nIMPORTANT: Do NOT assume opt-out intent. The caller must explicitly say they want to stop contact or remove their info. Phrases like \"I'm calling back from a call you made\" or \"you called me\" are NOT opt-out requests — the caller is simply returning a call and has not stated any intent yet.\n\nSALES (quote/price/estimate/cost/how much/new/schedule estimate - NEW clients):\nRoute to SALES.\n\nSCHEDULING (reschedule/cancel/confirm EXISTING estimate appointment):\nRoute to SCHEDULING. This is for people who ALREADY have an estimate scheduled. New clients go to SALES.\n\nINSTALLATION (install date/reschedule install/cancel install/installer questions):\nRoute to INSTALLATION.\n\nSERVICE (leak/clog/repair/overflow/refund - CONFIRMED existing customer):\nRoute to SERVICE.\n\nWARRANTY (register warranty/warranty claim):\nRoute to WARRANTY.\n\nBILLING (invoice/charges only — NOT payments/refunds):\nRoute to BILLING. *DO NOT ROUTE UNRELATED CALLS TO BILLING.*\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to BILLING. Those go to ESCALATION.\n\nMAIN OFFICE (job/careers/HR/vendor/marketing/rep/other requests):\nRoute to MAIN OFFICE.\nIMPORTANT: NEVER route \"remove my info\", \"delete my data\", \"stop calling\", or any opt-out/data-removal request to MAIN OFFICE. Those go to ESCALATION.\n\nWhen asked about wanting to talk to a rep (\"rep\"), route to MAIN OFFICE.\n\nCANCEL APPOINTMENT (ALWAYS clarify - never route directly):\nWhen caller says \"cancel appointment\" or \"cancel my appointment\" - ALWAYS ask clarification first.\n\n## CLARIFY ONLY IF UNCLEAR (ONE question max, then route)\n\nReturning a call (\"you called me\" / \"I'm calling back\" / \"I got a missed call\" / \"I received a call from this number\"):\nDo NOT assume the caller wants to opt out or stop contact. They are simply returning a call.\nAsk: \"Sure, how can we help you today?\"\nThen route based on whatever they say next. If they THEN say they want to stop calls, route to ESCALATION. If they want a quote, route to SALES. Etc.\n\nGutter issue + unknown if customer: \nAsk: \"Do you have LeafFilter installed?\"\n- Yes - route to SERVICE\n- No - route to SALES\n\nGeneral gutter question (\"do you clean gutters?\"):\nAsk: \"Are you an existing LeafFilter customer, or interested in getting a quote?\"\n- Customer - route to SERVICE  \n- Quote - route to SALES\nDO NOT explain what LeafFilter does. Just ask, then route.\n\nAmbiguous appointment (new, get a quote, etc):\nAsk: \"Is this for an estimate or installation?\"\n- Estimate - route to SALES\n- Installation - route to INSTALLATION\n\nAmbiguous appointment (ONLY when caller says cancel/reschedule/confirm):\nAsk: \"Is this for a free estimate or a scheduled installation?\"\n- Free estimate - route to SCHEDULING\n- Installation - route to INSTALLATION\n\n## SILENCE HANDLING\n1st silence: \"I'm here, what can I help with?\"\n2nd silence: \"New quote or existing customer?\"\n3rd silence: Route to MAIN OFFICE.\n\n## NEVER SAY\n- Tool names, function names, or internal identifiers\n- Phone numbers or any digits\n- \"ladder\" or \"off that ladder\"  \n- \"they\" when referring to LeafFilter (use \"we\")\n- Long explanations about what LeafFilter does\n- \"I will transfer you\" without actually transferring\n- \"Silently routing you\" or anything along those lines.\n\nMake sure that when you route, you actually call the \"transfer_intent\" tool properly (THIS SHOULD NOT BE OUTPUT AS MESSAGE TO THE USER).\n\n## CRITICAL: TRANSFER TOOL EXECUTION\n- Every routing decision MUST result in an actual transfer_intent tool call in that same turn.\n- NEVER say you are routing/transferring without also invoking the tool. Saying it without doing it leaves the caller stuck.\n- If you determine the intent matches a route, call the tool immediately — do not wait for another turn.\n- If in doubt whether the tool was called, call it again. A duplicate call is better than no call.",
+          "role": "system"
+        },
+        {
+          "content": "I'm Liam, an automated assistant here to get you to the Right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?",
+          "role": "assistant"
+        }
+      ],
+      "transcript": "AI: I'm Liam, an automated assistant here to get you to the Right LeafFilter team instantly. You can speak to me just like a human. What do you need help with?\n",
+      "pcapUrl": "https://storage.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da-1771101664037-723d585e-d234-4589-b26f-92041b009cd2-sip.pcap",
+      "logUrl": "https://calllogs.vapi.ai/f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6/019c5de2-13da-7885-98ef-2a76b65604da-99429ae9-dd1f-4ce6-a7fe-3b93045bcdde-1771101664239.jsonl.gz",
+      "nodes": [],
+      "variableValues": {
+        "cid": "646011989-3980090423-771340218@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 8:40 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "8:40 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+12252026314",
+          "sipUri": "sip:+12252026314@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "900a36a8-b0b2-4b5d-a312-96fa635e5e53",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646011989-3980090423-771340218@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 8:40 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "variables": {
+        "cid": "646011989-3980090423-771340218@msc1.382COM.COM",
+        "day": "14",
+        "now": "Feb 14, 2026, 8:40 PM UTC",
+        "date": "Feb 14, 2026 UTC",
+        "time": "8:40 PM UTC",
+        "year": "2026",
+        "month": "February",
+        "customer": {
+          "number": "+12252026314",
+          "sipUri": "sip:+12252026314@44.229.228.186:5060"
+        },
+        "transport": {
+          "callSid": "900a36a8-b0b2-4b5d-a312-96fa635e5e53",
+          "provider": "vapi.sip",
+          "sbcCallSid": "646011989-3980090423-771340218@msc1.382COM.COM",
+          "conversationType": "voice"
+        },
+        "account-sid": "c033b672-5b99-42ae-9ce2-b231e9a522fb",
+        "phoneNumber": {
+          "id": "4b3d3ac4-c611-4d05-8ebc-8d71fda944a9",
+          "name": "Prod_Leaf",
+          "orgId": "f7ad5cdc-f9ed-4bfa-bdba-34986b4463e6",
+          "number": "+13078408336",
+          "status": "active",
+          "provider": "vapi",
+          "createdAt": "2025-11-25T09:00:47.404Z",
+          "updatedAt": "2026-02-03T20:04:05.569Z",
+          "assistantId": "2544b70d-d6f9-478f-bdd5-a6f3dd5f4e4d",
+          "providerResourceId": "ee32d764-ccbb-4daf-a994-c217a5e9f9ee",
+          "fallbackDestination": {
+            "type": "number",
+            "number": "+18774137848"
+          }
+        },
+        "forwarded-for": "64.125.111.10",
+        "application-sid": "79d078c8-76b2-452a-99e0-ddd5abbf6269",
+        "currentDateTime": "Saturday, February 14, 2026 at 8:40 PM UTC",
+        "voip-carrier-sid": "a5569621-84ac-49cc-a8b8-11c7fb96b905",
+        "originating-carrier": "382com"
+      },
+      "performanceMetrics": {
+        "turnLatencies": [],
+        "modelLatencyAverage": 0,
+        "voiceLatencyAverage": 0,
+        "transcriberLatencyAverage": 0,
+        "endpointingLatencyAverage": 0,
+        "turnLatencyAverage": 0,
+        "fromTransportLatencyAverage": 20,
+        "toTransportLatencyAverage": 20,
+        "numUserInterrupted": 0,
+        "numAssistantInterrupted": 0
+      },
+      "scorecards": {},
+      "transfers": []
+    },
+    "costs": [
+      {
+        "cost": 0.00659099,
+        "type": "transcriber",
+        "minutes": 0.67345,
+        "transcriber": {
+          "model": "nova-3-general",
+          "provider": "deepgram"
+        }
+      },
+      {
+        "cost": 0,
+        "type": "model",
+        "model": {
+          "model": "gpt-5-mini",
+          "provider": "openai"
+        },
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "cachedPromptTokens": 0
+      },
+      {
+        "cost": 0,
+        "type": "voice",
+        "voice": {
+          "model": "eleven_turbo_v2_5",
+          "voiceId": "dN8hviqdNrAsEcL57yFj",
+          "provider": "vapi"
+        },
+        "characters": 0
+      },
+      {
+        "cost": 0.031575,
+        "type": "vapi",
+        "minutes": 0.6315,
+        "subType": "normal"
+      },
+      {
+        "cost": 0,
+        "type": "knowledge-base",
+        "model": {
+          "model": "gemini-2.0-flash",
+          "provider": "google"
+        },
+        "promptTokens": 0,
+        "completionTokens": 0
+      }
+    ],
+    "monitor": {
+      "listenUrl": "wss://phone-call-websocket.aws-us-west-2-backend-production3.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da/listen",
+      "controlUrl": "https://phone-call-websocket.aws-us-west-2-backend-production3.vapi.ai/019c5de2-13da-7885-98ef-2a76b65604da/control"
+    },
+    "transport": {
+      "callSid": "900a36a8-b0b2-4b5d-a312-96fa635e5e53",
+      "provider": "vapi.sip",
+      "sbcCallSid": "646011989-3980090423-771340218@msc1.382COM.COM",
+      "conversationType": "voice"
+    }
   }
 ]
